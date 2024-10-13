@@ -11,7 +11,7 @@ for file in os.listdir("./assets"):
     images[file] = pyglet.image.load("./assets/"+file)
 
 ground = []
-for x in range (20):
+for x in range (30):
     ground.append(pyglet.sprite.Sprite(images["image25.png"], x*13, 0))
 
 
