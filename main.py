@@ -80,13 +80,13 @@ class level():
 
     def movecamera(self,direction):
         if direction == "down":
-            level1.player.x+=1
+            level1.player.y+=1
             for block in self.blocks:
                 block.y+=1
             for block in self.deepbricks:
                 block.y+=1
         else:
-            level1.player.x -= 1
+            level1.player.y -= 1
             for block in self.blocks:
                 block.y -= 1
             for block in self.deepbricks:
@@ -105,7 +105,7 @@ class level():
             self.player.fall()
     def mine(self):
         for i in self.deepbricks:
-            print(i)
+            print(i.x)
             print(self.player.x)
             if i.x==self.player.x-1 and i.y==self.player.y:
                 i.delete()
@@ -200,4 +200,3 @@ pyglet.app.run()
 #colin2>>&
 #ridge | (づ￣ u￣)づ
 #finley
-#
