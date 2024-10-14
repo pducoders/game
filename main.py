@@ -177,6 +177,8 @@ def on_key_press(space, _):
         level1.movecamera("down")
     if key=="PERIOD":
         level1.mine()
+    if key=="L":
+        level1.movecamera("MWAHAHAHA")
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
