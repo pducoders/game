@@ -80,11 +80,13 @@ class level():
 
     def movecamera(self,direction):
         if direction == "down":
+            level1.player.x+=1
             for block in self.blocks:
                 block.y+=1
             for block in self.deepbricks:
                 block.y+=1
         else:
+            level1.player.x -= 1
             for block in self.blocks:
                 block.y -= 1
             for block in self.deepbricks:
@@ -103,6 +105,8 @@ class level():
             self.player.fall()
     def mine(self):
         for i in self.deepbricks:
+            print(i)
+            print(self.player.x)
             if i.x==self.player.x-1 and i.y==self.player.y:
                 i.delete()
     #stay on blocks &condense int one for loop
@@ -143,6 +147,7 @@ cubeSize = 32
 #runs te code
 def update():
     game_window.clear()
+
     camera = level1.player.x*cubeSize-game_window.width/4
     #i dont even no what this all is summoning images mabyye
     pyglet.shapes.Rectangle(0,game_window.height-10, game_window.width, 10, color=(1, 60, 154)).draw()
