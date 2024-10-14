@@ -134,7 +134,12 @@ class level():
                     return True
                 if self.player.y == 13:
                     return True
+
         return False
+    def auto_downscroll(self):
+        if level1.player.y <= level1.deepbricks[0].y:
+            level1.movecamera("down")
+
 #summons level
 level1 = level(
 deepbricks = deepbricks,
@@ -147,7 +152,7 @@ cubeSize = 32
 #runs te code
 def update():
     game_window.clear()
-
+    level1.auto_downscroll()
     camera = level1.player.x*cubeSize-game_window.width/4
     #i dont even no what this all is summoning images mabyye
     pyglet.shapes.Rectangle(0,game_window.height-10, game_window.width, 10, color=(1, 60, 154)).draw()
@@ -198,7 +203,6 @@ pyglet.app.run()
 #rosa :3:3:3 idk how to do python r.i.p. me ig & $$$$$$
 #ayda
 #sylvia|〜(￣▽￣〜)
-#colin ,}{...}[oter]/\?:"fnf"%%*,90+?&&&&@><^><#$$||}}}^^?27;;::''''>>><<<)("<">"!\\/:$?&?%?@?!?*?^?***K-boi
-#colin2>>&
+#colin ,}{...}[oter]/\?:"fnf"%%*,90+?&&&&@><^><#$$||}}}^^?27;;::''''>>><<<)("<">"!\\/:$?&?%?@?!?*?^?***K-boi.^**!2>>&https//.^:;;'}{#>+@**>?"=%^_-_-_-_-69_-_-_-_@$//?;+!*^><][^^-_$;L-bruh??#>>{=}$--+--"B"@&<?>*Boi*%<//'"
 #ridge | (づ￣ u￣)づ
 #finley
