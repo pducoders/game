@@ -78,19 +78,19 @@ class level():
         self.exploFrame = 0
         self.blocks = blocks
 
-    def movecamera(self,direction):
+    def movecamera(self,direction,amount):
         if direction == "down":
-            level1.player.y+=1
+            level1.player.y+=amount
             for block in self.blocks:
-                block.y+=1
+                block.y+=amount
             for block in self.deepbricks:
-                block.y+=1
+                block.y+=amount
         else:
-            level1.player.y -= 1
+            level1.player.y -= amount
             for block in self.blocks:
-                block.y -= 1
+                block.y -= amount
             for block in self.deepbricks:
-                block.y -= 1
+                block.y -= amount
     #dont walk into blacks
     def anti_collide(self,_):
         for i in level1.deepbricks:
@@ -137,9 +137,7 @@ class level():
 
         return False
     def auto_downscroll(self):
-        if level1.player.y <= level1.deepbricks[0].y:
-            level1.movecamera("down")
-
+        self.movecamera("down",level1.player.y*-1)
 #summons level
 level1 = level(
 deepbricks = deepbricks,
@@ -149,13 +147,11 @@ blocks = blocks,
 )
 #size of everything do not chnage
 cubeSize = 32
-#runs te code
 def update():
     game_window.clear()
     level1.auto_downscroll()
     camera = level1.player.x*cubeSize-game_window.width/4
     #i dont even no what this all is summoning images mabyye
-    pyglet.shapes.Rectangle(0,game_window.height-10, game_window.width, 10, color=(1, 60, 154)).draw()
     pyglet.shapes.Rectangle(level1.player.x * cubeSize-camera, level1.player.y * cubeSize + 10, cubeSize, cubeSize).draw()
     for blade in level1.deepbricks:
         pyglet.image.load("./assets/image1.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
@@ -163,7 +159,8 @@ def update():
         pyglet.shapes.Rectangle(blok.x * cubeSize-camera, blok.y * cubeSize + 10, cubeSize, cubeSize,
                                 color=(1, 50, 100)).draw()
     pyglet.shapes.Rectangle(level1.end.x*cubeSize-camera, 0, cubeSize, game_window.height, color=level1.end.color).draw()
-#moving
+
+    #moving
 def on_key_press(space, _):
     key = pyglet.window.key.symbol_string(space)
     if key == "UP":
@@ -179,11 +176,12 @@ def on_key_press(space, _):
     if key == "RIGHT":
         level1.player.x += 1
     if key =="SLASH":
-        level1.movecamera("down")
+        level1.movecamera("down",1)
     if key=="PERIOD":
         level1.mine()
     if key=="L":
-        level1.movecamera("MWAHAHAHA")
+        level1.player.y+=2
+        #level1.movecamera("MWAHAHAHA",1)
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
