@@ -104,11 +104,12 @@ class level():
         if self.playerOnFloor() == False:
             self.player.fall()
     def mine(self):
+
         for i in self.deepbricks:
-            print(i.x)
-            print(self.player.x)
-            if i.x==self.player.x-1 and i.y==self.player.y:
-                i.delete()
+            if i.y==self.player.y-1and i.x==self.player.x:
+                #absuoltlty horrible fix asap
+                i.y=1000
+                print(i.y)
     #stay on blocks &condense int one for loop
     def playerOnFloor(self):
         #dont fall through trees
@@ -178,7 +179,7 @@ def on_key_press(space, _):
     if key=="PERIOD":
         level1.mine()
     if key=="L":
-        level1.movecamera("MWAHAHAHA")
+        level1.movecamera("up")
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
