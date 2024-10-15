@@ -138,7 +138,7 @@ class level():
 
         return False
     def auto_downscroll(self):
-        self.movecamera("down",level1.player.y*-1)
+        self.movecamera("down" , level1.player.y*-1)
 #summons level
 level1 = level(
 deepbricks = deepbricks,
