@@ -143,6 +143,10 @@ class level():
         return False
     def auto_downscroll(self):
         self.movecamera("down" , level1.player.y*-1+2)
+    def noinfinitefalling(self,_):
+        if deepbricks[0].y==3:
+            self.player.y=3
+            self.player.x+=1
 #summons level
 level1 = level(
 deepbricks = deepbricks,
@@ -193,6 +197,7 @@ def on_key_press(space, _):
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
+pyglet.clock.schedule_interval(level1.noinfinitefalling, 0.5)
 pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.app.run()
 
