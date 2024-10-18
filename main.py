@@ -110,6 +110,10 @@ class level():
                 #absuoltlty horrible fix asap
                 i.y=1000
                 print(i.y)
+    def place(self):
+        for i in self.deepbricks:
+            i.y = self.player.y
+            i.x =self.player.x+1
     #stay on blocks &condense int one for loop
     def playerOnFloor(self):
         #dont fall through trees
@@ -138,7 +142,7 @@ class level():
 
         return False
     def auto_downscroll(self):
-        self.movecamera("down" , level1.player.y*-1)
+        self.movecamera("down" , level1.player.y*-1+2)
 #summons level
 level1 = level(
 deepbricks = deepbricks,
@@ -182,6 +186,8 @@ def on_key_press(space, _):
         level1.mine()
     if key=="L":
         level1.movecamera("up",1)
+    if key=="CONTROL":
+        level1.place()
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
