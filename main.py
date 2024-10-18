@@ -4,26 +4,23 @@ import pyglet
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 #your player &rename it later
 class cube():
-   def __init__(self):
-       self.x = 0
-       self.y = 0
-       self.shape = "cube"
-       self.gravity = "down"
-   #jump
-   def jump(self):
-       if self.gravity == "down":
-           self.y = self.y + 3
-       else:
-           self.y = self.y -3
-   #gravity
-   def fall(self):
-       if self.gravity == "down":
-           self.y = self.y - 1
-       else:
-           self.y = self.y+1
-
-
-
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.shape = "cube"
+        self.gravity = "down"
+    #jump
+    def jump(self):
+        if self.gravity == "down":
+            self.y = self.y + 3
+        else:
+            self.y = self.y -3
+    #gravity
+    def fall(self):
+        if self.gravity == "down":
+            self.y = self.y - 1
+        else:
+            self.y = self.y+1
 
 
 
@@ -48,19 +45,19 @@ class sawblade():
         self.y = y
 #bricks useful &change to sprite
 class block():
-   def __init__(self, x, y):
-       self.x = x
-       self.y = y
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 #&remove
 class endPoint():
-   def __init__(self, x, color):
-       self.x = x
-       self.color = color
+    def __init__(self, x, color):
+        self.x = x
+        self.color = color
 #&remove
 class Portal():
-   def __init__(self, x,y):
-       self.x = x
-       self.y =y*20
+    def __init__(self, x,y):
+        self.x = x
+        self.y =y*20
 #topsoil & rename
 deepbricks=[sawblade(0, -1),sawblade(1, 0), sawblade(2, 0), sawblade(3, 0), sawblade(9, 0), sawblade(6, 0),sawblade(7, 0), sawblade(8, 0),sawblade(9, 0), sawblade(10, 0), sawblade(11, 0),sawblade(12, 0), sawblade(13, 0), sawblade(4, 0), sawblade(14, 0), sawblade(8, 0), sawblade(14, 6), sawblade(18, 0), sawblade(18, 3), sawblade(21, 2), sawblade(58, 13), sawblade(60, 13), sawblade(96, 0), sawblade(36, 2)]
 #blocks cooridinates &rename make sprite
@@ -81,33 +78,6 @@ class level():
         self.exploFrame = 0
         self.blocks = blocks
 
-
-   def movecamera(self,direction,amount):
-       if direction == "down":
-           level1.player.y+=amount
-           for block in self.blocks:
-               block.y+=amount
-           for block in self.deepbricks:
-               block.y+=amount
-       else:
-           level1.player.y -= amount
-           for block in self.blocks:
-               block.y -= amount
-           for block in self.deepbricks:
-               block.y -= amount
-   #dont walk into blacks
-   def anti_collide(self,_):
-       for i in level1.deepbricks:
-           if self.player.x==i.x and self.player.y==i.y:
-               self.player.x=i.x-1
-       for i in level1.blocks:
-           if self.player.x==i.x and self.player.y==i.y:
-               self.player.x=i.x-1
-   #moving stuff
-   def one_second(self, _):
-       if self.playerOnFloor() == False:
-           self.player.fall()
-   def mine(self):
     def movecamera(self,direction,amount):
         if direction == "down":
             level1.player.y+=amount
@@ -140,6 +110,10 @@ class level():
                 #absuoltlty horrible fix asap
                 i.y=1000
                 print(i.y)
+    def place(self):
+        if self.playerOnFloor()==True:
+            deepbricks.append(sawblade(self.player.x-1,self.player.y))
+
     #stay on blocks &condense int one for loop
     def playerOnFloor(self):
         #dont fall through trees
@@ -166,10 +140,9 @@ class level():
                 if self.player.y == 13:
                     return True
 
-
-       return False
-   def auto_downscroll(self):
-       self.movecamera("down" , level1.player.y*-1)
+        return False
+    def auto_downscroll(self):
+        self.movecamera("down" , level1.player.y*-1+2)
 #summons level
 level1 = level(
 deepbricks = deepbricks,
@@ -179,22 +152,7 @@ blocks = blocks,
 )
 #size of everything do not chnage
 cubeSize = 32
-#runs te code
 def update():
-   game_window.clear()
-   level1.auto_downscroll()
-   camera = level1.player.x*cubeSize-game_window.width/4
-   #i dont even no what this all is summoning images mabyye
-   pyglet.shapes.Rectangle(level1.player.x * cubeSize-camera, level1.player.y * cubeSize + 10, cubeSize, cubeSize).draw()
-   for blade in level1.deepbricks:
-       pyglet.image.load("./assets/image1.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
-   for blok in level1.blocks:
-       pyglet.shapes.Rectangle(blok.x * cubeSize-camera, blok.y * cubeSize + 10, cubeSize, cubeSize,
-                               color=(1, 50, 100)).draw()
-   pyglet.shapes.Rectangle(level1.end.x*cubeSize-camera, 0, cubeSize, game_window.height, color=level1.end.color).draw()
-
-
-   #moving
     game_window.clear()
     level1.auto_downscroll()
     camera = level1.player.x*cubeSize-game_window.width/4
@@ -209,26 +167,6 @@ def update():
 
     #moving
 def on_key_press(space, _):
-   key = pyglet.window.key.symbol_string(space)
-   if key == "UP":
-       if level1.playerOnFloor():
-           level1.player.jump()
-       if level1.player.y > 13:
-           level1.player.y = 13
-   if key == "DOWN":
-       if level1.playerOnFloor()==False:
-           level1.player.fall()
-   if key == "LEFT":
-       level1.player.x -= 1
-   if key == "RIGHT":
-       level1.player.x += 1
-   if key =="SLASH":
-       level1.movecamera("down",1)
-   if key=="PERIOD":
-       level1.mine()
-   if key=="L":
-       level1.movecamera("up",1)
-   #& add minining
     key = pyglet.window.key.symbol_string(space)
     if key == "UP":
         if level1.playerOnFloor():
@@ -248,6 +186,8 @@ def on_key_press(space, _):
         level1.mine()
     if key=="L":
         level1.movecamera("up",1)
+    if key=="P":
+        level1.place()
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
