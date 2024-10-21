@@ -120,19 +120,19 @@ class level():
                 i.y=1000
                 print(i.y)
     def placeLeft(self):
-        if self.playerOnFloor()==True:
+        if self.playerOnFloor(level1.player)==True:
             deepbricks.append(sawblade(self.player.x-1,self.player.y))
 
     def placeRight(self):
-        if self.playerOnFloor()==True:
+        if self.playerOnFloor(level1.player)==True:
             deepbricks.append(sawblade(self.player.x+1,self.player.y))
 
     def placeUp(self):
-        if self.playerOnFloor()==True:
+        if self.playerOnFloor(level1.player)==True:
             deepbricks.append(sawblade(self.player.x,self.player.y+1))
 
     def placeDown(self):
-        if self.playerOnFloor()==True:
+        if self.playerOnFloor(level1.player)==True:
             deepbricks.append(sawblade(self.player.x,self.player.y-1))
 
     #stay on blocks &condense int one for loop
