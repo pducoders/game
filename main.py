@@ -51,6 +51,11 @@ class block():
     def __init__(self, x, y):
         self.x = x
         self.y = y
+
+class trunk():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 #&remove
 class endPoint():
     def __init__(self, x, color):
@@ -61,8 +66,10 @@ deepbrickbatch=pyglet.graphics.Batch()
 deepbricks=[topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0), topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0), topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3), topsoil(21, 2), topsoil(58, 13), topsoil(60, 13), topsoil(96, 0), topsoil(36, 2)]
 #blocks cooridinates &rename make sprite
 blocks = [block(5, 0), block(20, 3), block(68, 13), block(71, 13), block(71, 12), block(79, 8), block(95, 0)]
+trunks=[trunk(50, 0), trunk(50, -1), trunk(30, 0), trunk(30, -1), trunk(67, 0), trunk(67, -1), trunk(22, 0), trunk(22, -1), trunk(74, 0), trunk(74, -1), trunk(43, 0), trunk(43, -1), trunk(100, -1), trunk(100, 0), trunk(89, -1), trunk(89, 0), trunk(123, -1), trunk(123, 0), trunk(97, -1), trunk(97, -1), trunk(107, 0), trunk(107, -1), trunk(114, 0), trunk(114, -1), trunk(130, 0), trunk(130, -1)]
 #bricks
-brickslist=[deepbricks,blocks]
+brickslist=[deepbricks,blocks,trunks]
+
 #makes deep ground
 def MAKEDIRT():
     for ground in range(150):
@@ -70,7 +77,7 @@ def MAKEDIRT():
 MAKEDIRT()
 #makes all the stuff
 class level():
-    def __init__(self, deepbricks, end, player, blocks,cat,creatures):
+    def __init__(self, deepbricks, end, player, blocks,cat,creatures,trunks):
         self.deepbricks = deepbricks
         self.end = end
         self.player = player
@@ -78,6 +85,7 @@ class level():
         self.blocks = blocks
         self.cat=cat
         self.creatures=[self.cat,self.player]
+        self.trunks=trunks
     def movecamera(self,direction,amount):
         if direction == "down":
             level1.player.y+=amount
@@ -85,15 +93,23 @@ class level():
                 block.y+=amount
             for block in self.deepbricks:
                 block.y+=amount
+            for block in self.trunks:
+                block.y+=amount
         else:
             level1.player.y -= amount
             for block in self.blocks:
                 block.y -= amount
             for block in self.deepbricks:
                 block.y -= amount
+            for block in self.trunks:
+                block.y-=amount
     #dont walk into blacks
     def anti_collide(self,_):
         for creature in level1.creatures:
+            for i in level1.trunks:
+                if creature.x==i.x and creature.y==i.y:
+                    creature.x=i.x-1
+                    if "cat" in str(creature): creature.jump()
             for i in level1.deepbricks:
                 if creature.x==i.x and creature.y==i.y:
                     creature.x=i.x-1
@@ -121,7 +137,7 @@ class level():
                 print(i.y)
     def placeLeft(self):
         if self.playerOnFloor(level1.player)==True:
-            deepbricks.append(topsoil(self.player.x - 1, self.player.y))
+            deepbricks.append(topsoil(self.player.x-1,self.player.y))
 
     def placeRight(self):
         if self.playerOnFloor(level1.player)==True:
@@ -168,6 +184,7 @@ player = Player(),
 blocks = blocks,
 cat=cat(),
 creatures=[cat(),Player()],
+trunks=trunks,
 )
 #size of everything do not chnage
 cubeSize = 32
@@ -186,6 +203,9 @@ def update():
         pyglet.shapes.Rectangle(blok.x * cubeSize-camera, blok.y * cubeSize + 10, cubeSize, cubeSize,
                                 color=(1, 50, 100)).draw()
     pyglet.shapes.Rectangle(level1.end.x*cubeSize-camera, 0, cubeSize, game_window.height, color=level1.end.color).draw()
+
+    for log in level1.trunks:
+        pyglet.image.load("./assets/image6.png").blit(log.x * cubeSize-camera, log.y * cubeSize+10)
 
     #moving
 def on_key_press(space, _):
