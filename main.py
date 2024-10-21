@@ -3,7 +3,7 @@ import pyglet
 #summons window
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 #your player &rename it later
-class cube():
+class Player():
     def __init__(self):
         self.x = 0
         self.y = 0
@@ -41,20 +41,6 @@ class cat():
 
 
 
-#&remove later
-class jumpad():
-    def __init__(self, color, x, y):
-        if color == "yellow":
-            self.launchHeight = 4
-            self.color = (255, 254, 0)  # Yellow
-        if color == "pink":
-            self.launchHeight = 2
-            self.color = (254, 93, 243)
-        if color == "orange":
-            self.launchHeight = 5
-            self.color = (255, 94, 45)
-        self.x = x
-        self.y = y
 #topsoil &rename
 class sawblade():
     def __init__(self, x, y):
@@ -129,8 +115,7 @@ class level():
                 i.y=1000
                 print(i.y)
     def place(self):
-        if self.playerOnFloor(level1.player)==True:
-            deepbricks.append(sawblade(self.player.x-1,self.player.y))
+        deepbricks.append(sawblade(self.player.x-1,self.player.y))
     def movecat(self,_):
         if self.cat.x<self.player.x-3:
              self.cat.x+=1
@@ -163,10 +148,10 @@ class level():
 level1 = level(
 deepbricks = deepbricks,
 end = endPoint(140, (200, 150, 5)),
-player = cube(),
+player = Player(),
 blocks = blocks,
 cat=cat(),
-creatures=[cat(),cube()],
+creatures=[cat(),Player()],
 )
 #size of everything do not chnage
 cubeSize = 32
@@ -175,8 +160,9 @@ def update():
     level1.auto_downscroll()
     camera = level1.player.x*cubeSize-game_window.width/4
     #defines images uses colin magic
+
     pyglet.shapes.Rectangle(level1.cat.x * cubeSize - camera, level1.cat.y * cubeSize + 10, cubeSize,
-                            cubeSize,(0,255,0)).draw()
+                            cubeSize,(0,255,100)).draw()
     pyglet.shapes.Rectangle(level1.player.x * cubeSize-camera, level1.player.y * cubeSize + 10, cubeSize, cubeSize).draw()
     for blade in level1.deepbricks:
         pyglet.image.load("./assets/image1.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
@@ -216,7 +202,7 @@ pyglet.clock.schedule_interval(level1.one_second, 0.5)
 pyglet.clock.schedule_interval(level1.noinfinitefalling, 0.5)
 pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.movecat, 0.5)
-pyglet.app.run()
+# pyglet.app.run()
 
 
 
