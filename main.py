@@ -114,11 +114,22 @@ class level():
                 #absuoltlty horrible fix
                 i.y=1000
                 print(i.y)
-    def place(self):
-        deepbricks.append(sawblade(self.player.x-1,self.player.y))
-    def movecat(self,_):
-        if self.cat.x<self.player.x-3:
-             self.cat.x+=1
+    def placeLeft(self):
+        if self.playerOnFloor()==True:
+            deepbricks.append(sawblade(self.player.x-1,self.player.y))
+
+    def placeRight(self):
+        if self.playerOnFloor()==True:
+            deepbricks.append(sawblade(self.player.x+1,self.player.y))
+
+    def placeUp(self):
+        if self.playerOnFloor()==True:
+            deepbricks.append(sawblade(self.player.x,self.player.y+1))
+
+    def placeDown(self):
+        if self.playerOnFloor()==True:
+            deepbricks.append(sawblade(self.player.x,self.player.y-1))
+
     #stay on blocks &condense int one for loop
     def playerOnFloor(self,creature):
 
@@ -193,7 +204,13 @@ def on_key_press(space, _):
     if key=="L":
         level1.movecamera("up",1)
     if key=="P":
-        level1.place()
+        level1.placeRight()
+    if key=="U":
+        level1.placeLeft()
+    if key=="I":
+        level1.placeDown()
+    if key=="O":
+        level1.placeUp()
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
@@ -202,7 +219,7 @@ pyglet.clock.schedule_interval(level1.one_second, 0.5)
 pyglet.clock.schedule_interval(level1.noinfinitefalling, 0.5)
 pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.movecat, 0.5)
-# pyglet.app.run()
+pyglet.app.run()
 
 
 
