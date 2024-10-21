@@ -108,6 +108,11 @@ class level():
         for creature in self.creatures:
             if self.playerOnFloor(creature) == False:
                 creature.fall()
+    def movecat(self,_):
+        if self.cat.x<self.player.x-3:
+            self.cat.x+=1
+        if self.cat.x>self.player.x-3:
+            self.cat.x-=1
     def mine(self):
         for i in self.deepbricks:
             if i.y==self.player.y-1and i.x==self.player.x:
