@@ -31,7 +31,7 @@ class cat():
         if self.gravity == "down":
             self.y = self.y + 3
         else:
-            self.y = self.y -3
+            self.y = self.y - 3
     #gravity
     def fall(self):
         if self.gravity == "down":
@@ -42,7 +42,7 @@ class cat():
 
 
 #topsoil &rename
-class sawblade():
+class topsoil():
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -58,7 +58,7 @@ class endPoint():
         self.color = color
 #topsoil & rename
 deepbrickbatch=pyglet.graphics.Batch()
-deepbricks=[sawblade(0, -1),sawblade(1, 0), sawblade(2, 0), sawblade(3, 0), sawblade(9, 0), sawblade(6, 0),sawblade(7, 0), sawblade(8, 0),sawblade(9, 0), sawblade(10, 0), sawblade(11, 0),sawblade(12, 0), sawblade(13, 0), sawblade(4, 0), sawblade(14, 0), sawblade(8, 0), sawblade(14, 6), sawblade(18, 0), sawblade(18, 3), sawblade(21, 2), sawblade(58, 13), sawblade(60, 13), sawblade(96, 0), sawblade(36, 2)]
+deepbricks=[topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0), topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0), topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3), topsoil(21, 2), topsoil(58, 13), topsoil(60, 13), topsoil(96, 0), topsoil(36, 2)]
 #blocks cooridinates &rename make sprite
 blocks = [block(5, 0), block(20, 3), block(68, 13), block(71, 13), block(71, 12), block(79, 8), block(95, 0)]
 #bricks
@@ -66,7 +66,7 @@ brickslist=[deepbricks,blocks]
 #makes deep ground
 def MAKEDIRT():
     for ground in range(150):
-       deepbricks.append(sawblade(ground,-2))
+       deepbricks.append(topsoil(ground, -2))
 MAKEDIRT()
 #makes all the stuff
 class level():
@@ -115,25 +115,25 @@ class level():
             self.cat.x-=1
     def mine(self):
         for i in self.deepbricks:
-            if i.y==self.player.y-1and i.x==self.player.x:
+            if i.y==self.player.y-1 and i.x==self.player.x:
                 #absuoltlty horrible fix
                 i.y=1000
                 print(i.y)
     def placeLeft(self):
         if self.playerOnFloor(level1.player)==True:
-            deepbricks.append(sawblade(self.player.x-1,self.player.y))
+            deepbricks.append(topsoil(self.player.x - 1, self.player.y))
 
     def placeRight(self):
         if self.playerOnFloor(level1.player)==True:
-            deepbricks.append(sawblade(self.player.x+1,self.player.y))
+            deepbricks.append(topsoil(self.player.x + 1, self.player.y))
 
     def placeUp(self):
         if self.playerOnFloor(level1.player)==True:
-            deepbricks.append(sawblade(self.player.x,self.player.y+1))
+            deepbricks.append(topsoil(self.player.x, self.player.y + 1))
 
     def placeDown(self):
         if self.playerOnFloor(level1.player)==True:
-            deepbricks.append(sawblade(self.player.x,self.player.y-1))
+            deepbricks.append(topsoil(self.player.x, self.player.y - 1))
 
     #stay on blocks &condense int one for loop
     def playerOnFloor(self,creature):
