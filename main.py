@@ -129,12 +129,25 @@ class level():
             self.cat.x+=1
         if self.cat.x>self.player.x-3:
             self.cat.x-=1
-    def mine(self):
+    def mine(self,direction):
         for i in self.deepbricks:
-            if i.y==self.player.y-1 and i.x==self.player.x:
-                #absuoltlty horrible fix
-                i.y=1000
-                print(i.y)
+            if direction == "down":
+                if i.y==self.player.y-1 and i.x==self.player.x:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "up":
+                if i.y==self.player.y+1 and i.x==self.player.x:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "left":
+                if i.y==self.player.y and i.x==self.player.x-1:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "right":
+                if i.y==self.player.y and i.x==self.player.x+1:
+                    #absuoltlty horrible fix
+                    i.y=1000
+
     def placeLeft(self):
         if self.playerOnFloor(level1.player)==True:
             deepbricks.append(topsoil(self.player.x-1,self.player.y))
@@ -198,14 +211,14 @@ def update():
                             cubeSize,(0,255,100)).draw()
     pyglet.shapes.Rectangle(level1.player.x * cubeSize-camera, level1.player.y * cubeSize + 10, cubeSize, cubeSize).draw()
     for blade in level1.deepbricks:
-        pyglet.image.load("./assets/image1.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
+        pyglet.image.load("././game-main/assets/image1.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
     for blok in level1.blocks:
         pyglet.shapes.Rectangle(blok.x * cubeSize-camera, blok.y * cubeSize + 10, cubeSize, cubeSize,
                                 color=(1, 50, 100)).draw()
     pyglet.shapes.Rectangle(level1.end.x*cubeSize-camera, 0, cubeSize, game_window.height, color=level1.end.color).draw()
 
     for log in level1.trunks:
-        pyglet.image.load("./assets/image6.png").blit(log.x * cubeSize-camera, log.y * cubeSize+10)
+        pyglet.image.load("././game-main/assets/image6.png").blit(log.x * cubeSize-camera, log.y * cubeSize+10)
 
     #moving
 def on_key_press(space, _):
@@ -213,8 +226,7 @@ def on_key_press(space, _):
     if key == "UP":
         if level1.playerOnFloor(level1.player):
             level1.player.jump()
-        if level1.player.y > 13:
-            level1.player.y = 13
+
     if key == "DOWN":
         if level1.playerOnFloor(level1.player)==False:
             level1.player.fall()
@@ -225,7 +237,7 @@ def on_key_press(space, _):
     if key =="SLASH":
         level1.movecamera("down",1)
     if key=="PERIOD":
-        level1.mine()
+        level1.mine("down")
     if key=="L":
         level1.movecamera("up",1)
     if key=="P":
@@ -236,6 +248,14 @@ def on_key_press(space, _):
         level1.placeDown()
     if key=="O":
         level1.placeUp()
+    if key=="W":
+        level1.mine("up")
+    if key=="D":
+        level1.mine("right")
+    if key=="A":
+        level1.mine("left")
+    if key=="S":
+        level1.mine("down")
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
