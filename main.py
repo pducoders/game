@@ -143,7 +143,7 @@ class level():
     #moving stuff
     def one_second(self, _):
         for creature in self.creatures:
-            if self.playerOnFloor(creature) == False:
+            if self.creatureOnFloor(creature) == False:
                 creature.fall()
     def movecat(self,_):
         if self.cat.x<self.player.x-3:
@@ -170,27 +170,31 @@ class level():
                     i.y=1000
 
     def placeLeft(self):
-        if self.playerOnFloor(level1.player)==True:
+        if self.creatureOnFloor(level1.player)==True:
             deepbricks.append(topsoil(self.player.x-1,self.player.y))
 
     def placeRight(self):
-        if self.playerOnFloor(level1.player)==True:
+        if self.creatureOnFloor(level1.player)==True:
             deepbricks.append(topsoil(self.player.x + 1, self.player.y))
 
     def placeUp(self):
-        if self.playerOnFloor(level1.player)==True:
+        if self.creatureOnFloor(level1.player)==True:
             deepbricks.append(topsoil(self.player.x, self.player.y + 1))
 
     def placeDown(self):
-        if self.playerOnFloor(level1.player)==True:
+        if self.creatureOnFloor(level1.player)==True:
             deepbricks.append(topsoil(self.player.x, self.player.y - 1))
 
     #stay on blocks &condense int one for loop
-    def playerOnFloor(self,creature):
+    def creatureOnFloor(self, creature):
 
         for blok in level1.blocks:
             if creature.y == blok.y + 1 and creature.x == blok.x:
 
+                return True
+
+        for log in level1.trunks:
+            if creature.y == log.y + 1 and creature.x == log.x:
                 return True
 
             if creature.y == -1:
@@ -247,11 +251,11 @@ def on_key_press(space, _):
     level1.player.prev_x = level1.player.x
     level1.player.prev_y = level1.player.y
     if key == "UP":
-        if level1.playerOnFloor(level1.player):
+        if level1.creatureOnFloor(level1.player):
             level1.player.jump()
 
     if key == "DOWN":
-        if level1.playerOnFloor(level1.player)==False:
+        if level1.creatureOnFloor(level1.player)==False:
             level1.player.fall()
     if key == "LEFT":
         level1.player.x -= 1
@@ -282,9 +286,15 @@ def on_key_press(space, _):
     #& add minining
 def leftrightmarker(_):
     if keys[key.LEFT]:
+        level1.player.prev_x = level1.player.x
+        level1.player.prev_y = level1.player.y
         level1.player.x -= 1
+        level1.anti_collide(_)
     if keys[key.RIGHT]:
+        level1.player.prev_x = level1.player.x
+        level1.player.prev_y = level1.player.y
         level1.player.x += 1
+        level1.anti_collide(_)
 #run it nothing below here expect for run
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
