@@ -257,10 +257,6 @@ def on_key_press(space, _):
     if key == "DOWN":
         if level1.creatureOnFloor(level1.player)==False:
             level1.player.fall()
-    if key == "LEFT":
-        level1.player.x -= 1
-    if key == "RIGHT":
-        level1.player.x += 1
     if key =="SLASH":
         level1.movecamera("down",1)
     if key=="PERIOD":
