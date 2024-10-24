@@ -9,6 +9,8 @@ class cube():
         self.y = 0
         self.shape = "cube"
         self.gravity = "down"
+        self.prev_x = 0
+        self.prev_y = 0
     #jump
     def jump(self):
         if self.gravity == "down":
@@ -21,6 +23,7 @@ class cube():
             self.y = self.y - 1
         else:
             self.y = self.y+1
+
 
 
 
@@ -95,10 +98,13 @@ class level():
     def anti_collide(self,_):
         for i in level1.deepbricks:
             if self.player.x==i.x and self.player.y==i.y:
-                self.player.x=i.x-1
+                level1.player.x = level1.player.prev_x
+                level1.player.y = level1.player.prev_y
         for i in level1.blocks:
             if self.player.x==i.x and self.player.y==i.y:
                 self.player.x=i.x-1
+                level1.player.x = level1.player.prev_x
+                level1.player.y = level1.player.prev_y
     #moving stuff
     def one_second(self, _):
         if self.playerOnFloor() == False:
@@ -161,6 +167,8 @@ def update():
 #moving
 def on_key_press(space, _):
     key = pyglet.window.key.symbol_string(space)
+    level1.player.prev_x = level1.player.x
+    level1.player.prev_y = level1.player.y
     if key == "UP":
         if level1.playerOnFloor():
             level1.player.jump()
@@ -179,6 +187,7 @@ def on_key_press(space, _):
         level1.mine()
     if key=="L":
         level1.movecamera("MWAHAHAHA")
+
     #& add minining
 #run it nothing below here expect for run
 game_window.on_draw = update
