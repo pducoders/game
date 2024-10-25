@@ -17,9 +17,13 @@ class Player():
     #jump
     def jump(self):
         if self.gravity == "down":
-            self.y = self.y + 3
+            self.y +=1
+            self.y += 1
+            self.y += 1
         else:
-            self.y = self.y -3
+            self.y-=1
+            self.y -= 1
+            self.y -= 1
     #gravity
     def fall(self):
         if self.gravity == "down":
@@ -151,7 +155,42 @@ class level():
         if self.cat.x>self.player.x-3:
             self.cat.x-=1
     def mine(self,direction):
+
         for i in self.deepbricks:
+            if direction == "down":
+                if i.y==self.player.y-1 and i.x==self.player.x:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "up":
+                if i.y==self.player.y+1 and i.x==self.player.x:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "left":
+                if i.y==self.player.y and i.x==self.player.x-1:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "right":
+                if i.y==self.player.y and i.x==self.player.x+1:
+                    #absuoltlty horrible fix
+                    i.y=1000
+        for i in self.blocks:
+            if direction == "down":
+                if i.y==self.player.y-1 and i.x==self.player.x:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "up":
+                if i.y==self.player.y+1 and i.x==self.player.x:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "left":
+                if i.y==self.player.y and i.x==self.player.x-1:
+                    #absuoltlty horrible fix
+                    i.y=1000
+            if direction == "right":
+                if i.y==self.player.y and i.x==self.player.x+1:
+                    #absuoltlty horrible fix
+                    i.y=1000
+        for i in self.trunks:
             if direction == "down":
                 if i.y==self.player.y-1 and i.x==self.player.x:
                     #absuoltlty horrible fix
@@ -238,8 +277,7 @@ def update():
     for blade in level1.deepbricks:
         pyglet.image.load("./assets/image1.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
     for blok in level1.blocks:
-        pyglet.shapes.Rectangle(blok.x * cubeSize-camera, blok.y * cubeSize + 10, cubeSize, cubeSize,
-                                color=(1, 50, 100)).draw()
+        pyglet.image.load("./assets/image8.png").blit(blok.x * cubeSize-camera, blok.y * cubeSize+10)
     pyglet.shapes.Rectangle(level1.end.x*cubeSize-camera, 0, cubeSize, game_window.height, color=level1.end.color).draw()
 
     for log in level1.trunks:
