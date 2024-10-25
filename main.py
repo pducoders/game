@@ -18,12 +18,18 @@ class Player():
     def jump(self):
         if self.gravity == "down":
             self.y +=1
+            level1.anti_collide(None)
             self.y += 1
+            level1.anti_collide(None)
             self.y += 1
+            level1.anti_collide(None)
         else:
             self.y-=1
+            level1.anti_collide(None)
             self.y -= 1
+            level1.anti_collide(None)
             self.y -= 1
+            level1.anti_collide(None)
     #gravity
     def fall(self):
         if self.gravity == "down":
