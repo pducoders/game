@@ -281,13 +281,13 @@ def update():
                             cubeSize,(0,255,100)).draw()
     pyglet.shapes.Rectangle(level1.player.x * cubeSize-camera, level1.player.y * cubeSize + 10, cubeSize, cubeSize).draw()
     for blade in level1.deepbricks:
-        pyglet.image.load("./assets/image1.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
+        pyglet.image.load("./assets/images/dirt.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
     for blok in level1.blocks:
-        pyglet.image.load("./assets/image8.png").blit(blok.x * cubeSize-camera, blok.y * cubeSize+10)
+        pyglet.image.load("./assets/images/halfgrowncabbage.png").blit(blok.x * cubeSize-camera, blok.y * cubeSize+10)
     pyglet.shapes.Rectangle(level1.end.x*cubeSize-camera, 0, cubeSize, game_window.height, color=level1.end.color).draw()
 
     for log in level1.trunks:
-        pyglet.image.load("./assets/image6.png").blit(log.x * cubeSize-camera, log.y * cubeSize+10)
+        pyglet.image.load("./assets/images/trunk.png").blit(log.x * cubeSize-camera, log.y * cubeSize+10)
 
     #moving
 def on_key_press(space, _):
