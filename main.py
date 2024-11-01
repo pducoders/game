@@ -191,9 +191,9 @@ def update():
     level1.auto_downscroll()
     camera = level1.player.x*cubeSize-game_window.width/4
     #defines images uses colin magic
-    pyglet.image.load("./assets/kitty2.png").blit(level1.cat.x * cubeSize - camera, level1.cat.y * cubeSize + 10)
-    pyglet.image.load("./assets/draftforcharecter.png").blit(level1.player.x * cubeSize - camera,
-                                                             level1.player.y * cubeSize + 10)
+    pyglet.shapes.Rectangle(level1.cat.x * cubeSize - camera, level1.cat.y * cubeSize + 10, cubeSize,
+                            cubeSize,(0,255,100)).draw()
+    pyglet.shapes.Rectangle(level1.player.x * cubeSize-camera, level1.player.y * cubeSize + 10, cubeSize, cubeSize).draw()
     for coords,blok in blocksdict.items():
         if type(blok)== topsoil:
             pyglet.image.load("./assets/image1.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
