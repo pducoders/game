@@ -86,7 +86,7 @@ class endPoint():
     def __init__(self, x, color):
         self.x = x
         self.color = color
-#topsoil & rename
+blocksdict=dict()
 deepbrickbatch=pyglet.graphics.Batch()
 deepbricks=[topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0), topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0), topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3), topsoil(21, 2), topsoil(58, 13), topsoil(60, 13), topsoil(96, 0), topsoil(36, 2)]
 #blocks cooridinates &rename make sprite
@@ -94,15 +94,17 @@ blocks = [block(5, 0), block(20, 3), block(68, 13), block(71, 13), block(71, 12)
 trunks=[trunk(50, 0), trunk(50, -1), trunk(30, 0), trunk(30, -1), trunk(67, 0), trunk(67, -1), trunk(22, 0), trunk(22, -1), trunk(74, 0), trunk(74, -1), trunk(43, 0), trunk(43, -1), trunk(100, -1), trunk(100, 0), trunk(89, -1), trunk(89, 0), trunk(123, -1), trunk(123, 0), trunk(97, -1), trunk(97, -1), trunk(107, 0), trunk(107, -1), trunk(114, 0), trunk(114, -1), trunk(130, 0), trunk(130, -1)]
 #bricks
 brickslist=[deepbricks,blocks,trunks]
-
+for bricktype in brickslist:
+    for brick in bricktype:
+        blocksdict[(brick.x,brick.y)]=brick
 #makes deep ground
 def MAKEDIRT():
     for ground in range(150):
-       deepbricks.append(topsoil(ground, -2))
+       blocksdict[(ground,-2)]=topsoil(ground,-2)
 MAKEDIRT()
 #makes all the stuff
 class level():
-    def __init__(self, deepbricks, end, player, blocks,cat,creatures,trunks):
+    def __init__(self, deepbricks, end, player, blocks,cat,creatures,trunks,dict):
         self.deepbricks = deepbricks
         self.end = end
         self.player = player
@@ -111,45 +113,24 @@ class level():
         self.cat=cat
         self.creatures=[self.cat,self.player]
         self.trunks=trunks
+        self.dict=blocksdict
     def movecamera(self,direction,amount):
-        if direction == "down":
-            level1.player.y+=amount
-            for block in self.blocks:
-                block.y+=amount
-            for block in self.deepbricks:
-                block.y+=amount
-            for block in self.trunks:
-                block.y+=amount
+        for coords,blok in blocksdict.items():
+            if direction == "down":
+                blok.y+=amount
+            else:
+                blok.y-=amount
+        if direction=="down":
+            self.player.y+=amount
         else:
-            level1.player.y -= amount
-            for block in self.blocks:
-                block.y -= amount
-            for block in self.deepbricks:
-                block.y -= amount
-            for block in self.trunks:
-                block.y-=amount
+            self.player.y-=amount
     #dont walk into blocks
     def anti_collide(self,_):
         for creature in level1.creatures:
-            for i in level1.trunks:
-                if creature.x==i.x and creature.y==i.y:
+            for coords,blok in blocksdict.items():
+                
+                if creature.x == blok.x and creature.y == blok.y:
                     creature.anti_collide()
-            for i in level1.deepbricks:
-                if creature.x==i.x and creature.y==i.y:
-                    creature.anti_collide()
-            for i in level1.blocks:
-                if creature.x==i.x and creature.y==i.y:
-                    creature.anti_collide()
-
-        for i in level1.deepbricks:
-            if self.player.x==i.x and self.player.y==i.y:
-                level1.player.x = level1.player.prev_x
-                level1.player.y = level1.player.prev_y
-        for i in level1.blocks:
-            if self.player.x==i.x and self.player.y==i.y:
-                self.player.x=i.x-1
-                level1.player.x = level1.player.prev_x
-                level1.player.y = level1.player.prev_y
     #moving stuff
     def one_second(self, _):
         for creature in self.creatures:
@@ -161,104 +142,37 @@ class level():
         if self.cat.x>self.player.x-3:
             self.cat.x-=1
     def mine(self,direction):
-
-        for i in self.deepbricks:
+        for coords, blok in blocksdict.items():
             if direction == "down":
-                if i.y==self.player.y-1 and i.x==self.player.x:
-                    #absuoltlty horrible fix
-                    i.y=1000
+                if blok.y == self.player.y - 1 and blok.x == self.player.x:
+                    blok.y=100
             if direction == "up":
-                if i.y==self.player.y+1 and i.x==self.player.x:
-                    #absuoltlty horrible fix
-                    i.y=1000
-            if direction == "left":
-                if i.y==self.player.y and i.x==self.player.x-1:
-                    #absuoltlty horrible fix
-                    i.y=1000
+                if blok.y == self.player.y + 1 and blok.x == self.player.x:
+                    blok.y=100
             if direction == "right":
-                if i.y==self.player.y and i.x==self.player.x+1:
-                    #absuoltlty horrible fix
-                    i.y=1000
-        for i in self.blocks:
-            if direction == "down":
-                if i.y==self.player.y-1 and i.x==self.player.x:
-                    #absuoltlty horrible fix
-                    i.y=1000
-            if direction == "up":
-                if i.y==self.player.y+1 and i.x==self.player.x:
-                    #absuoltlty horrible fix
-                    i.y=1000
+                if blok.y == self.player.y and blok.x == self.player.x+1:
+                    blok.y=100
             if direction == "left":
-                if i.y==self.player.y and i.x==self.player.x-1:
-                    #absuoltlty horrible fix
-                    i.y=1000
-            if direction == "right":
-                if i.y==self.player.y and i.x==self.player.x+1:
-                    #absuoltlty horrible fix
-                    i.y=1000
-        for i in self.trunks:
-            if direction == "down":
-                if i.y==self.player.y-1 and i.x==self.player.x:
-                    #absuoltlty horrible fix
-                    i.y=1000
-            if direction == "up":
-                if i.y==self.player.y+1 and i.x==self.player.x:
-                    #absuoltlty horrible fix
-                    i.y=1000
-            if direction == "left":
-                if i.y==self.player.y and i.x==self.player.x-1:
-                    #absuoltlty horrible fix
-                    i.y=1000
-            if direction == "right":
-                if i.y==self.player.y and i.x==self.player.x+1:
-                    #absuoltlty horrible fix
-                    i.y=1000
-
-    def placeLeft(self):
-        if self.creatureOnFloor(level1.player)==True:
-            deepbricks.append(topsoil(self.player.x-1,self.player.y))
-
-    def placeRight(self):
-        if self.creatureOnFloor(level1.player)==True:
-            deepbricks.append(topsoil(self.player.x + 1, self.player.y))
-
-    def placeUp(self):
-        if self.creatureOnFloor(level1.player)==True:
-            deepbricks.append(topsoil(self.player.x, self.player.y + 1))
-
-    def placeDown(self):
-        if self.creatureOnFloor(level1.player)==True:
-            deepbricks.append(topsoil(self.player.x, self.player.y - 1))
-
+                if blok.y == self.player.y and blok.x == self.player.x-1:
+                    blok.y=100
+    def place(self,direction):
+        for coords,blok in blocksdict.items():
+            if direction=="down":
+                blocksdict[(self.player.x,self.player.y-1)]=topsoil(self.player.x,self.player.y-1)
+            if direction=="up":
+                blocksdict[(self.player.x,self.player.y+1)]=topsoil(self.player.x,self.player.y+1)
+            if direction=="left":
+                blocksdict[(self.player.x+1,self.player.y)]=topsoil(self.player.x+1,self.player.y)
+            if direction=="right":
+                blocksdict[(self.player.x-1,self.player.y)]=topsoil(self.player.x-1,self.player.y)
     #stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
-
-        for blok in level1.blocks:
+        for coords,blok in blocksdict.items():
             if creature.y == blok.y + 1 and creature.x == blok.x:
-
                 return True
-
-        for log in level1.trunks:
-            if creature.y == log.y + 1 and creature.x == log.x:
-                return True
-
-            if creature.y == -1:
-                pass
-        for brick in level1.deepbricks:
-
-            if creature.y == brick.y + 1 and creature.x == brick.x:
-                return True
-            if creature.y == -1:
-                pass
-
         return False
     def auto_downscroll(self):
-        self.movecamera("down" , level1.player.y*-1+2)
-    def noinfinitefalling(self,_):
-        for creature in self.creatures:
-            if deepbricks[0].y==3 or creature.y==-2:
-                creature.y=3
-                creature.x+=1
+        self.movecamera("down" , level1.player.y*-1+3)
 #summons level
 level1 = level(
 deepbricks = deepbricks,
@@ -268,6 +182,7 @@ blocks = blocks,
 cat=cat(),
 creatures=[cat(),Player()],
 trunks=trunks,
+dict=blocksdict,
 )
 #size of everything do not chnage
 cubeSize = 32
@@ -276,20 +191,16 @@ def update():
     level1.auto_downscroll()
     camera = level1.player.x*cubeSize-game_window.width/4
     #defines images uses colin magic
-
-    pyglet.shapes.Rectangle(level1.cat.x * cubeSize - camera, level1.cat.y * cubeSize + 10, cubeSize,
-                            cubeSize,(0,255,100)).draw()
-    pyglet.shapes.Rectangle(level1.player.x * cubeSize-camera, level1.player.y * cubeSize + 10, cubeSize, cubeSize).draw()
-    for blade in level1.deepbricks:
-        pyglet.image.load("./assets/images/dirt.png").blit(blade.x * cubeSize-camera, blade.y * cubeSize+10)
-    for blok in level1.blocks:
-        pyglet.image.load("./assets/images/halfgrowncabbage.png").blit(blok.x * cubeSize-camera, blok.y * cubeSize+10)
-    pyglet.shapes.Rectangle(level1.end.x*cubeSize-camera, 0, cubeSize, game_window.height, color=level1.end.color).draw()
-
-    for log in level1.trunks:
-        pyglet.image.load("./assets/images/trunk.png").blit(log.x * cubeSize-camera, log.y * cubeSize+10)
-
-    #moving
+    pyglet.image.load("./assets/kitty2.png").blit(level1.cat.x * cubeSize - camera, level1.cat.y * cubeSize + 10)
+    pyglet.image.load("./assets/draftforcharecter.png").blit(level1.player.x * cubeSize - camera,
+                                                             level1.player.y * cubeSize + 10)
+    for coords,blok in blocksdict.items():
+        if type(blok)== topsoil:
+            pyglet.image.load("./assets/image1.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
+        elif type(blok) == block:
+            pyglet.image.load("./assets/image8.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
+        elif type(blok)== trunk:
+            pyglet.image.load("./assets/image6.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
 def on_key_press(space, _):
     key = pyglet.window.key.symbol_string(space)
     level1.player.prev_x = level1.player.x
@@ -308,13 +219,13 @@ def on_key_press(space, _):
     if key=="L":
         level1.movecamera("up",1)
     if key=="P":
-        level1.placeRight()
+        level1.place("right")
     if key=="U":
-        level1.placeLeft()
+        level1.place("left")
     if key=="I":
-        level1.placeDown()
+        level1.place("down")
     if key=="O":
-        level1.placeUp()
+        level1.place("up")
     if key=="W":
         level1.mine("up")
     if key=="D":
@@ -323,7 +234,6 @@ def on_key_press(space, _):
         level1.mine("left")
     if key=="S":
         level1.mine("down")
-    #& add minining
 def leftrightmarker(_):
     if keys[key.LEFT]:
         level1.player.prev_x = level1.player.x
@@ -340,22 +250,6 @@ game_window.on_draw = update
 game_window.on_key_press = on_key_press
 pyglet.clock.schedule_interval(leftrightmarker, 0.1)
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
-pyglet.clock.schedule_interval(level1.noinfinitefalling, 0.5)
 pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.movecat, 0.5)
 pyglet.app.run()
-
-
-
-
-
-#]:~—~Names~—~:[#
-#dont mess with stuff on other peoples line !! so dont use control z ever
-# also if you want to type gibberish type in here not in the code
-#{&~~:AVNI("Yellow"):~~&}#<[$(@^💾^*~|~*^💻^*~|~*^💿^*~|~*^⌨^*~|~*^🖱^@)$]>
-#rosa :3:3:3 idk how to do python r.i.p. me ig & $$$$$$
-#ayda
-#sylvia|〜(￣▽￣〜)
-#colin ,}{...}[oter]/\?:"fnf"%%*,90+?&&&&@><^><#$$||}}}^^?27;;::''''>>><<<)("<">"!\\/:$?&?%?@?!?*?^?***K-boi.^**!2>>&https//.^:;;'}{#>+@**>?"=%^_-_-_-_-69_-_-_-_@$//?;+!*^><][^^-_$;L-bruh??#>>{=}$--+--"B"@&<?>*Boi*%<//'"
-#ridge | (づ￣ u￣)づ
-#finley
