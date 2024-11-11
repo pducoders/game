@@ -83,7 +83,7 @@ class topsoil():
 
 
 # bricks useful &change to sprite
-class block():
+class water():
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -115,7 +115,7 @@ deepbricks = [topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topso
               topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3),
               topsoil(21, 2), topsoil(58, 13), topsoil(60, 13), topsoil(96, 0), topsoil(36, 2)]
 # blocks cooridinates &rename make sprite
-blocks = [block(5, 0), block(20, 3), block(68, 13), block(71, 13), block(71, 12), block(79, 8), block(95, 0), block(70, -2)]
+blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12), water(79, 8), water(95, 0), water(70, -2)]
 trunks = [trunk(50, 0), trunk(50, -1), trunk(30, 0), trunk(30, -1), trunk(67, 0), trunk(67, -1), trunk(22, 0),
           trunk(22, -1), trunk(74, 0), trunk(74, -1), trunk(43, 0), trunk(43, -1), trunk(100, -1), trunk(100, 0),
           trunk(89, -1), trunk(89, 0), trunk(123, -1), trunk(123, 0), trunk(97, -1), trunk(97, -1), trunk(107, 0),
@@ -257,10 +257,10 @@ def update():
             pyglet.image.load("./assets/images/cabbagegrown.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
         elif type(blok) == leaf:
             pyglet.image.load("./assets/images/leaves.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
-        elif type(blok) == block:
+        elif type(blok) == water:
             pyglet.image.load("./assets/images/water.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
         elif type(blok) == trunk:
-            pyglet.image.load("./assets/images/wheatplanted.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
+            pyglet.image.load("./assets/images/trunk.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
 
 
 def on_key_press(space, _):
