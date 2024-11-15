@@ -139,11 +139,7 @@ for bricktype in brickslist:
 def MAKEDIRT():
     for ground in range(150):
         blocksdict[(ground, -2)] = topsoil(ground, -2)
-
-
 MAKEDIRT()
-
-
 # makes all the stuff
 class level():
     def __init__(self, deepbricks, end, player, blocks, cat, creatures, trunks, leaves, dict):
@@ -242,7 +238,7 @@ level1 = level(
 # size of everything do not chnage
 cubeSize = 32
 
-
+clock=pyglet.clock.Clock()
 def update():
     game_window.clear()
     level1.auto_downscroll()
@@ -252,6 +248,9 @@ def update():
                             cubeSize, (0, 255, 100)).draw()
     pyglet.shapes.Rectangle(level1.player.x * cubeSize - camera, level1.player.y * cubeSize + 10, cubeSize,
                             cubeSize).draw()
+    updatetime=pyglet.clock.Clock.update_time(clock)
+    if updatetime!=0:
+        print(1/updatetime)
     for coords, blok in blocksdict.items():
         if type(blok) == topsoil:
             pyglet.image.load("./assets/images/cabbagegrown.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
@@ -299,8 +298,6 @@ def on_key_press(space, _):
     if key == "V":
         print(level1.player.x)
         print(level1.player.y)
-
-
 def leftrightmarker(_):
     if keys[key.LEFT]:
         level1.player.prev_x = level1.player.x
