@@ -1,6 +1,6 @@
 import pyglet
 from pyglet.window import key
-
+import itertools
 # nothing other than import above here
 # summons window
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
@@ -107,10 +107,18 @@ class endPoint():
         self.x = x
         self.color = color
 
-
+class lava():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.color = (255, 75, 0)
+class stone():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 blocksdict = dict()
 deepbrickbatch = pyglet.graphics.Batch()
-deepbricks = [topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
+deepbricks = [topsoil(16, 2), topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
               topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0),
               topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3),
               topsoil(21, 2), topsoil(58, 13), topsoil(60, 13), topsoil(96, 0), topsoil(36, 2)]
@@ -139,7 +147,16 @@ for bricktype in brickslist:
 def MAKEDIRT():
     for ground in range(150):
         blocksdict[(ground, -2)] = topsoil(ground, -2)
+def makelava():
+    for x,y in itertools.product(range(-1000, 1000), range(-30, -20)):
+        blocksdict[(x,y)] = lava(x,y)
+
+def makestone():
+    for x,y in itertools.product(range(-1000, 1000), range(-30,-5)):
+        blocksdict[(x,y)] = stone(x,y)
+makelava()
 MAKEDIRT()
+makestone()
 # makes all the stuff
 class level():
     def __init__(self, deepbricks, end, player, blocks, cat, creatures, trunks, leaves, dict):
@@ -156,7 +173,7 @@ class level():
 
 
     def movecamera(self, direction, amount):
-        for coords, blok in blocksdict.items():
+        """for coords, blok in blocksdict.items():
             if direction == "down":
                 blok.y += amount
             else:
@@ -164,7 +181,7 @@ class level():
         if direction == "down":
             self.player.y += amount
         else:
-            self.player.y -= amount
+            self.player.y -= amount"""
 
     # dont walk into blocks
     def anti_collide(self, _):
@@ -202,15 +219,14 @@ class level():
                     blok.y = 100
 
     def place(self, direction):
-        for coords, blok in blocksdict.items():
-            if direction == "down":
-                blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
-            if direction == "up":
-                blocksdict[(self.player.x, self.player.y + 1)] = topsoil(self.player.x, self.player.y + 1)
-            if direction == "left":
-                blocksdict[(self.player.x + 1, self.player.y)] = topsoil(self.player.x + 1, self.player.y)
-            if direction == "right":
-                blocksdict[(self.player.x - 1, self.player.y)] = topsoil(self.player.x - 1, self.player.y)
+        if direction == "down":
+            blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
+        if direction == "up":
+            blocksdict[(self.player.x, self.player.y + 1)] = topsoil(self.player.x, self.player.y + 1)
+        if direction == "left":
+            blocksdict[(self.player.x + 1, self.player.y)] = topsoil(self.player.x + 1, self.player.y)
+        if direction == "right":
+            blocksdict[(self.player.x - 1, self.player.y)] = topsoil(self.player.x - 1, self.player.y)
 
     # stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
@@ -236,32 +252,36 @@ level1 = level(
     dict=blocksdict,
 )
 # size of everything do not chnage
-cubeSize = 32
+cube_size = 32
 
-clock=pyglet.clock.Clock()
+
 def update():
     game_window.clear()
     level1.auto_downscroll()
-    camera = level1.player.x * cubeSize - game_window.width / 4
+    camera = 0
     # defines images uses colin magic
-    pyglet.shapes.Rectangle(level1.cat.x * cubeSize - camera, level1.cat.y * cubeSize + 10, cubeSize,
-                            cubeSize, (0, 255, 100)).draw()
-    pyglet.shapes.Rectangle(level1.player.x * cubeSize - camera, level1.player.y * cubeSize + 10, cubeSize,
-                            cubeSize).draw()
-    updatetime=pyglet.clock.Clock.update_time(clock)
-    if updatetime!=0:
-        print(1/updatetime)
-    for coords, blok in blocksdict.items():
+    pyglet.shapes.Rectangle(level1.cat.x * cube_size - camera, level1.cat.y * cube_size + 10, cube_size,
+                            cube_size, (0, 255, 100)).draw()
+
+    for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
+        blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
+        if blok_cord in blocksdict:
+            blok=blocksdict[blok_cord]
+        else:continue
         if type(blok) == topsoil:
-            pyglet.image.load("./assets/images/cabbagegrown.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
+            pyglet.image.load("././game-main/assets/images/cabbagegrown.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == leaf:
-            pyglet.image.load("./assets/images/leaves.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
+            pyglet.image.load("././game-main/assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == water:
-            pyglet.image.load("./assets/images/water.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
+            pyglet.image.load("././game-main/assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == trunk:
-            pyglet.image.load("./assets/images/trunk.png").blit(blok.x * cubeSize - camera, blok.y * cubeSize + 10)
-
-
+            pyglet.image.load("././game-main/assets/images/wheatplanted.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+        elif type(blok) == stone:
+            pyglet.image.load("././game-main/assets/images/stone.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+        elif type(blok) == lava:
+            pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
+    pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
+                                cube_size).draw()
 def on_key_press(space, _):
     key = pyglet.window.key.symbol_string(space)
     level1.player.prev_x = level1.player.x
@@ -298,6 +318,8 @@ def on_key_press(space, _):
     if key == "V":
         print(level1.player.x)
         print(level1.player.y)
+
+
 def leftrightmarker(_):
     if keys[key.LEFT]:
         level1.player.prev_x = level1.player.x
@@ -309,8 +331,14 @@ def leftrightmarker(_):
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
         level1.anti_collide(_)
-
-
+@game_window.event
+def on_mouse_press(clickx, clicky, button, modifiers):
+    adjustedx = int(clickx / 32) - 15 + level1.player.x
+    adjustedy=int(clicky/32)-5+level1.player.y
+    if button ==1:
+        blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
+    if button ==4:
+        blocksdict[adjustedx,adjustedy].y=100
 # run it nothing below here expect for run
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
