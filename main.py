@@ -1,13 +1,12 @@
 import pyglet
 from pyglet.window import key
 import itertools
+from random import randint as random
 # nothing other than import above here
 # summons window
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 keys = key.KeyStateHandler()
 game_window.push_handlers(keys)
-
-
 # your player &rename it later
 class Player():
     def __init__(self):
@@ -120,6 +119,14 @@ class dirt():
     def __init__(self,x,y):
         self.x=x
         self.y=y
+class flower():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+class cloud():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 blocksdict = dict()
 deepbricks = [topsoil(16, 2), topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
               topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0),
@@ -159,6 +166,11 @@ def makelava():
 def makestone():
     for x,y in itertools.product(range(-1000, 1000), range(-20,-5)):
         blocksdict[(x,y)] = stone(x,y)
+def makeflowers():
+    for x in range(-1000,1000):
+        if x % random(1,50) == 0:
+            blocksdict[x,-1]=flower(x,-1)
+makeflowers()
 makelava()
 maketopsoil()
 makestone()
@@ -289,7 +301,10 @@ def update():
             pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
         elif type(blok) == dirt:
             pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-    pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
+        elif type(blok) == flower:
+            pyglet.image.load("./assets/images/flower.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+
+            pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
                                 cube_size).draw()
 def on_key_press(space, _):
     key = pyglet.window.key.symbol_string(space)
