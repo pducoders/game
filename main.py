@@ -286,7 +286,7 @@ def update():
         elif type(blok) == lava:
             pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
         elif type(blok) == dirt:
-            pyglet.image.load("././game-main/assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
     pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
                                 cube_size).draw()
 def on_key_press(space, _):
