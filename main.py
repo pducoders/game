@@ -269,7 +269,7 @@ def update():
             blok=blocksdict[blok_cord]
         else:continue
         if type(blok) == topsoil:
-            pyglet.image.load("././game-main/assets/images/cabbagegrown.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            pyglet.image.load("././game-main/assets/images/topsoilgood.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == leaf:
             pyglet.image.load("././game-main/assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == water:
