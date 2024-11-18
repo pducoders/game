@@ -1,13 +1,13 @@
 import pyglet
 from pyglet.window import key
 import itertools
+from random import randint as random
+from collections import Counter
 # nothing other than import above here
 # summons window
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 keys = key.KeyStateHandler()
 game_window.push_handlers(keys)
-
-
 # your player &rename it later
 class Player():
     def __init__(self):
@@ -130,7 +130,16 @@ class dirt():
     def __init__(self,x,y):
         self.x=x
         self.y=y
+class flower():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+class cloud():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 blocksdict = dict()
+inventory = Counter()
 deepbricks = [topsoil(16, 2), topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
               topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0),
               topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3),
@@ -169,6 +178,11 @@ def makelava():
 def makestone():
     for x,y in itertools.product(range(-1000, 1000), range(-20,-5)):
         blocksdict[(x,y)] = stone(x,y)
+def makeflowers():
+    for x in range(-1000,1000):
+        if x % random(1,50) == 0:
+            blocksdict[x,-1]=flower(x,-1)
+makeflowers()
 makelava()
 maketopsoil()
 makestone()
@@ -221,32 +235,30 @@ class level():
             self.cat.x -= 1
 
     def mine(self, direction):
-        todelete=None
-        for coords, blok in blocksdict.items():
-            if direction == "down":
-                if blok.y == self.player.y - 1 and blok.x == self.player.x:
-                    todelete=coords
-            if direction == "up":
-                if blok.y == self.player.y + 1 and blok.x == self.player.x:
-                    todelete=coords
-            if direction == "right":
-                if blok.y == self.player.y and blok.x == self.player.x + 1:
-                    todelete=coords
-            if direction == "left":
-                if blok.y == self.player.y and blok.x == self.player.x - 1:
-                    todelete=coords
-        blocksdict.pop(todelete)
-
-    def place(self, direction):
         if direction == "down":
-            blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
+            del blocksdict[self.player.x, self.player.y - 1]
+            inventory["topsoil"] += 1
         if direction == "up":
-            blocksdict[(self.player.x, self.player.y + 1)] = topsoil(self.player.x, self.player.y + 1)
-        if direction == "left":
-            blocksdict[(self.player.x + 1, self.player.y)] = topsoil(self.player.x + 1, self.player.y)
+            del blocksdict[self.player.x, self.player.y + 1]
+            inventory["topsoil"] += 1
         if direction == "right":
-            blocksdict[(self.player.x - 1, self.player.y)] = topsoil(self.player.x - 1, self.player.y)
-
+            del blocksdict[self.player.x + 1, self.player.y]
+            inventory["topsoil"] += 1
+        if direction == "left":
+            del blocksdict[self.player.x - 1, self.player.y]
+            inventory["topsoil"] += 1
+        print(inventory["topsoil"])
+    def place(self, direction):
+        if inventory["topsoil"] > 0:
+            if direction == "down":
+                blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
+            if direction == "up":
+                blocksdict[(self.player.x, self.player.y + 1)] = topsoil(self.player.x, self.player.y + 1)
+            if direction == "left":
+                blocksdict[(self.player.x + 1, self.player.y)] = topsoil(self.player.x + 1, self.player.y)
+            if direction == "right":
+                blocksdict[(self.player.x - 1, self.player.y)] = topsoil(self.player.x - 1, self.player.y)
+            inventory["topsoil"] -= 1
     # stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
         for coords, blok in blocksdict.items():
@@ -300,7 +312,10 @@ def update():
             pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
         elif type(blok) == dirt:
             pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-    pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
+        elif type(blok) == flower:
+            pyglet.image.load("./assets/images/flower.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+
+            pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
                                 cube_size).draw()
 def on_key_press(space, _):
     key = pyglet.window.key.symbol_string(space)
@@ -338,8 +353,8 @@ def on_key_press(space, _):
     if key == "V":
         print(level1.player.x)
         print(level1.player.y)
-
-
+    if key =="G":
+        print(inventory["topsoil"])
 def leftrightmarker(_):
     if keys[key.LEFT]:
         level1.player.prev_x = level1.player.x
@@ -356,7 +371,9 @@ def on_mouse_press(clickx, clicky, button, modifiers):
     adjustedx = int(clickx / 32) - 15 + level1.player.x
     adjustedy=int(clicky/32)-5+level1.player.y
     if button ==1:
-        blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
+        if inventory["topsoil"]>0:
+            blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
+            inventory["topsoil"]-=1
     if button ==4:
         del blocksdict[adjustedx,adjustedy]
 # run it nothing below here expect for run
