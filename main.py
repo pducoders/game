@@ -210,19 +210,21 @@ class level():
             self.cat.x -= 1
 
     def mine(self, direction):
+        todelete=None
         for coords, blok in blocksdict.items():
             if direction == "down":
                 if blok.y == self.player.y - 1 and blok.x == self.player.x:
-                    blok.y = 100
+                    todelete=coords
             if direction == "up":
                 if blok.y == self.player.y + 1 and blok.x == self.player.x:
-                    blok.y = 100
+                    todelete=coords
             if direction == "right":
                 if blok.y == self.player.y and blok.x == self.player.x + 1:
-                    blok.y = 100
+                    todelete=coords
             if direction == "left":
                 if blok.y == self.player.y and blok.x == self.player.x - 1:
-                    blok.y = 100
+                    todelete=coords
+        blocksdict.pop(todelete)
 
     def place(self, direction):
         if direction == "down":
@@ -345,7 +347,7 @@ def on_mouse_press(clickx, clicky, button, modifiers):
     if button ==1:
         blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
     if button ==4:
-        blocksdict[adjustedx,adjustedy].y=100
+        del blocksdict[adjustedx,adjustedy]
 # run it nothing below here expect for run
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
