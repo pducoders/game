@@ -247,7 +247,7 @@ class level():
                 blocksdict[(self.player.x + 1, self.player.y)] = topsoil(self.player.x + 1, self.player.y)
             if direction == "right":
                 blocksdict[(self.player.x - 1, self.player.y)] = topsoil(self.player.x - 1, self.player.y)
-        inventory["topsoil"] -= 1
+            inventory["topsoil"] -= 1
     # stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
         for coords, blok in blocksdict.items():
@@ -360,7 +360,9 @@ def on_mouse_press(clickx, clicky, button, modifiers):
     adjustedx = int(clickx / 32) - 15 + level1.player.x
     adjustedy=int(clicky/32)-5+level1.player.y
     if button ==1:
-        blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
+        if inventory["topsoil"]>0:
+            blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
+            inventory["topsoil"]-=1
     if button ==4:
         del blocksdict[adjustedx,adjustedy]
 # run it nothing below here expect for run
