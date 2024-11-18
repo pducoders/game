@@ -46,12 +46,11 @@ class Player():
     def anti_collide(self):
         self.x = self.prev_x
         self.y = self.prev_y
-
-
 class cat():
     def __init__(self):
         self.x = 0
         self.y = 0
+        self.shape = "cube"
         self.gravity = "down"
         self.prev_x = 0
         self.prev_y = 0
@@ -59,9 +58,19 @@ class cat():
     # jump
     def jump(self):
         if self.gravity == "down":
-            self.y = self.y + 3
+            self.y += 1
+            level1.anti_collide(None)
+            self.y += 1
+            level1.anti_collide(None)
+            self.y += 1
+            level1.anti_collide(None)
         else:
-            self.y = self.y - 3
+            self.y -= 1
+            level1.anti_collide(None)
+            self.y -= 1
+            level1.anti_collide(None)
+            self.y -= 1
+            level1.anti_collide(None)
 
     # gravity
     def fall(self):
@@ -70,9 +79,10 @@ class cat():
         else:
             self.y = self.y + 1
 
-    # anti-collide
+    # anti-collide which is called when the player is in a block
     def anti_collide(self):
-        self.jump()
+        self.x = self.prev_x
+        self.y = self.prev_y
 
 
 # topsoil &rename
@@ -193,8 +203,9 @@ class level():
     def anti_collide(self, _):
         for creature in level1.creatures:
             for coords, blok in blocksdict.items():
-
                 if creature.x == blok.x and creature.y == blok.y:
+                    creature.anti_collide()
+                if creature.x+1 == blok.x and creature.y == blok.y and type(creature)==cat:
                     creature.anti_collide()
 
     # moving stuff
@@ -268,10 +279,10 @@ def update():
     level1.auto_downscroll()
     camera = 0
     # defines images uses colin magic
-    pyglet.shapes.Rectangle(level1.cat.x * cube_size - camera, level1.cat.y * cube_size + 10, cube_size,
-                            cube_size, (0, 255, 100)).draw()
     for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
         blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
+        if (level1.cat.x,level1.cat.y) == blok_cord:
+            pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         if blok_cord in blocksdict:
             blok=blocksdict[blok_cord]
         else:continue
