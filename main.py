@@ -116,8 +116,11 @@ class stone():
     def __init__(self, x, y):
         self.x = x
         self.y = y
+class dirt():
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
 blocksdict = dict()
-deepbrickbatch = pyglet.graphics.Batch()
 deepbricks = [topsoil(16, 2), topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
               topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0),
               topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3),
@@ -144,19 +147,22 @@ for bricktype in brickslist:
     for brick in bricktype:
         blocksdict[(brick.x, brick.y)] = brick
 # makes deep ground
-def MAKEDIRT():
-    for ground in range(150):
-        blocksdict[(ground, -2)] = topsoil(ground, -2)
+def makedirt():
+    for x,y in itertools.product(range(-1000, 1000), range(-10, -2)):
+        blocksdict[(x,y)] = dirt(x,y)
+def maketopsoil():
+    for x in range(-1000,1000):
+        blocksdict[(x,-2)] = topsoil(x,-2)
 def makelava():
     for x,y in itertools.product(range(-1000, 1000), range(-30, -20)):
         blocksdict[(x,y)] = lava(x,y)
-
 def makestone():
-    for x,y in itertools.product(range(-1000, 1000), range(-30,-5)):
+    for x,y in itertools.product(range(-1000, 1000), range(-20,-5)):
         blocksdict[(x,y)] = stone(x,y)
 makelava()
-MAKEDIRT()
+maketopsoil()
 makestone()
+makedirt()
 # makes all the stuff
 class level():
     def __init__(self, deepbricks, end, player, blocks, cat, creatures, trunks, leaves, dict):
@@ -262,24 +268,25 @@ def update():
     # defines images uses colin magic
     pyglet.shapes.Rectangle(level1.cat.x * cube_size - camera, level1.cat.y * cube_size + 10, cube_size,
                             cube_size, (0, 255, 100)).draw()
-
     for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
         blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
         if blok_cord in blocksdict:
             blok=blocksdict[blok_cord]
         else:continue
         if type(blok) == topsoil:
-            pyglet.image.load("././game-main/assets/images/topsoilgood.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            pyglet.image.load("./assets/images/topsoilgood.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == leaf:
-            pyglet.image.load("././game-main/assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            pyglet.image.load("./assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == water:
-            pyglet.image.load("././game-main/assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            pyglet.image.load("./assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == trunk:
-            pyglet.image.load("././game-main/assets/images/wheatplanted.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            pyglet.image.load("./assets/images/wheatplanted.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == stone:
-            pyglet.image.load("././game-main/assets/images/stone.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            pyglet.image.load("./assets/images/stone.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
         elif type(blok) == lava:
             pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
+        elif type(blok) == dirt:
+            pyglet.image.load("././game-main/assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
     pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
                                 cube_size).draw()
 def on_key_press(space, _):
