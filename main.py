@@ -181,7 +181,8 @@ def makestone():
 def makeflowers():
     for x in range(-1000,1000):
         if x % random(1,50) == 0:
-            blocksdict[x,-1]=flower(x,-1)
+            if (x,-1) in blocksdict: pass
+            else: blocksdict[x,-1]=flower(x,-1)
 makeflowers()
 makelava()
 maketopsoil()
@@ -288,6 +289,7 @@ cube_size = 32
 
 def update():
     game_window.clear()
+    pyglet.text.Label(str((level1.player.x,level1.player.y)),x=0,y=game_window.height-cube_size).draw()
     level1.auto_downscroll()
     camera = 0
     # defines images uses colin magic
