@@ -315,9 +315,9 @@ def update():
                 pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == flower:
                 pyglet.image.load("./assets/images/flower.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-
-                pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
-                                    cube_size).draw()
+        #Draw the player
+        pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
+                            cube_size).draw()
     if inventoryshown:
         for i in range(inventory["topsoil"]):
             pyglet.image.load("./assets/images/topsoil.png").blit(i * cube_size - camera, 1 * cube_size + 10)
