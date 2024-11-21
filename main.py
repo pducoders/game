@@ -181,7 +181,8 @@ def makestone():
 def makeflowers():
     for x in range(-1000,1000):
         if x % random(1,50) == 0:
-            blocksdict[x,-1]=flower(x,-1)
+            if (x,-1) not in blocksdict:
+                blocksdict[x,-1]=flower(x,-1)
 makeflowers()
 makelava()
 maketopsoil()
