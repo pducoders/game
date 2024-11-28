@@ -303,7 +303,7 @@ def update():
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
-                pyglet.image.load("./assets/images/kitty2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
