@@ -285,36 +285,53 @@ level1 = level(
 )
 # size of everything do not chnage
 cube_size = 32
-
+batch=pyglet.graphics.Batch()
 inventoryshown=False
 def update():
     game_window.clear()
     level1.auto_downscroll()
     camera = 0
+    todraw=[]
+    topsoilimg=pyglet.image.load("./assets/images/topsoil.png")
+    dirtimg = pyglet.image.load("./assets/images/dirt.png")
+    leafimg = pyglet.image.load("./assets/images/leaves.png")
+    waterimg = pyglet.image.load("./assets/images/water.png")
+    trunkimg = pyglet.image.load("./assets/images/trunk.png")
+    stoneimg = pyglet.image.load("./assets/images/stone.png")
+    flowerimg = pyglet.image.load("./assets/images/flower.png")
     if not inventoryshown:
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
-                pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                pyglet.image.load("./assets/images/kitty2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
+
             if type(blok) == topsoil:
-                pyglet.image.load("./assets/images/topsoil.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                todraw.append(pyglet.sprite.Sprite(topsoilimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                #pyglet.image.load("./assets/images/topsoil.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == leaf:
-                pyglet.image.load("./assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                todraw.append(pyglet.sprite.Sprite(leafimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                #pyglet.image.load("./assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == water:
-                pyglet.image.load("./assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                todraw.append(pyglet.sprite.Sprite(waterimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                #pyglet.image.load("./assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == trunk:
-                pyglet.image.load("./assets/images/wheatplanted.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                todraw.append(pyglet.sprite.Sprite(trunkimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                #pyglet.image.load("./assets/images/wheatplanted.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == stone:
-                pyglet.image.load("./assets/images/stone.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                todraw.append(pyglet.sprite.Sprite(stoneimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                #pyglet.image.load("./assets/images/stone.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == lava:
                 pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
             elif type(blok) == dirt:
-                pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                todraw.append(pyglet.sprite.Sprite(dirtimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == flower:
-                pyglet.image.load("./assets/images/flower.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                todraw.append(pyglet.sprite.Sprite(flowerimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+            batch.draw()
         #Draw the player
         pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
                             cube_size).draw()
@@ -378,9 +395,9 @@ def on_mouse_press(clickx, clicky, button, modifiers):
     adjustedx = int(clickx / 32) - 15 + level1.player.x
     adjustedy=int(clicky/32)-5+level1.player.y
     if button ==1:
-        if inventory["topsoil"]>0:
-            blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
-            inventory["topsoil"]-=1
+        #if inventory[topsoil]>0:
+        blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
+            #inventory["topsoil"]-=1
     if button ==4:
         del blocksdict[adjustedx,adjustedy]
 # run it nothing below here expect for run
