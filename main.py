@@ -276,6 +276,7 @@ batch=pyglet.graphics.Batch()
 inventoryshown=False
 fps=pyglet.window.FPSDisplay(window=game_window)
 speed=1
+game_speed=30
 def update():
     game_window.clear()
     camera = 0
@@ -287,14 +288,14 @@ def update():
         images[3] = pyglet.image.load("./assets/images/water.png")
         images[4] = pyglet.image.load("./assets/images/trunk.png")
         images[5] = pyglet.image.load("./assets/images/stone.png")
-        images[6] = pyglet.image.load("./assets/images/dirt.png")
+        images[6] = pyglet.image.load("./assets/images/flower.png")
     todraw=[]
     global speed
     if len(fps.label.text)==4:
-        if float(fps.label.text)<10:
-            speed+=0.1
-        if float(fps.label.text)>10:
-            speed-=0.1
+        if float(fps.label.text)<game_speed:
+            speed+=1
+        if float(fps.label.text)>game_speed and speed>0.1:
+            speed-=1
     sleep(speed/6)
     try:
         loadimages()
@@ -305,7 +306,7 @@ def update():
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
-                pyglet.image.load("./assets/images/kitty2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
