@@ -202,18 +202,6 @@ class level():
         self.leaves = leaves
         self.dict = blocksdict
 
-
-    def movecamera(self, direction, amount):
-        """for coords, blok in blocksdict.items():
-            if direction == "down":
-                blok.y += amount
-            else:
-                blok.y -= amount
-        if direction == "down":
-            self.player.y += amount
-        else:
-            self.player.y -= amount"""
-
     # dont walk into blocks
     def anti_collide(self, _):
         for creature in level1.creatures:
@@ -266,11 +254,6 @@ class level():
             if creature.y == blok.y + 1 and creature.x == blok.x:
                 return True
         return False
-
-    def auto_downscroll(self):
-        self.movecamera("down", level1.player.y * -1 + 3)
-
-
 # summons level
 level1 = level(
     deepbricks=deepbricks,
@@ -290,16 +273,16 @@ inventoryshown=False
 fps=pyglet.window.FPSDisplay(window=game_window)
 def update():
     game_window.clear()
-    level1.auto_downscroll()
     camera = 0
+    images=[None,None,None,None,None,None,None]
     def loadimages():
-        topsoilimg = pyglet.image.load("./assets/images/topsoil.png")
-        dirtimg = pyglet.image.load("./assets/images/dirt.png")
-        leafimg = pyglet.image.load("./assets/images/leaves.png")
-        waterimg = pyglet.image.load("./assets/images/water.png")
-        trunkimg = pyglet.image.load("./assets/images/trunk.png")
-        stoneimg = pyglet.image.load("./assets/images/stone.png")
-        flowerimg = pyglet.image.load("./assets/images/flower.png")
+        images[0] = pyglet.image.load("./assets/images/topsoil.png")
+        images[1] = pyglet.image.load("./assets/images/dirt.png")
+        images[2] = pyglet.image.load("./assets/images/leaves.png")
+        images[3] = pyglet.image.load("./assets/images/water.png")
+        images[4] = pyglet.image.load("./assets/images/trunk.png")
+        images[5] = pyglet.image.load("./assets/images/stone.png")
+        images[6] = pyglet.image.load("./assets/images/dirt.png")
     todraw=[]
     try:
         loadimages()
@@ -312,33 +295,33 @@ def update():
             for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
                 blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
                 if (level1.cat.x,level1.cat.y) == blok_cord:
-                    pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                    pyglet.image.load("./assets/images/kitty2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 if blok_cord in blocksdict:
                     blok=blocksdict[blok_cord]
                 else:continue
 
                 if type(blok) == topsoil:
-                    todraw.append(pyglet.sprite.Sprite(topsoilimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                    todraw.append(pyglet.sprite.Sprite(images[0], screen_x * cube_size, screen_y * cube_size, batch=batch))
                     #pyglet.image.load("./assets/images/topsoil.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 elif type(blok) == leaf:
-                    todraw.append(pyglet.sprite.Sprite(leafimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                    todraw.append(pyglet.sprite.Sprite(images[2], screen_x * cube_size, screen_y * cube_size, batch=batch))
                     #pyglet.image.load("./assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 elif type(blok) == water:
-                    todraw.append(pyglet.sprite.Sprite(waterimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                    todraw.append(pyglet.sprite.Sprite(images[3], screen_x * cube_size, screen_y * cube_size, batch=batch))
                     #pyglet.image.load("./assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 elif type(blok) == trunk:
-                    todraw.append(pyglet.sprite.Sprite(trunkimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                    todraw.append(pyglet.sprite.Sprite(images[4], screen_x * cube_size, screen_y * cube_size, batch=batch))
                     #pyglet.image.load("./assets/images/wheatplanted.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 elif type(blok) == stone:
-                    todraw.append(pyglet.sprite.Sprite(stoneimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                    todraw.append(pyglet.sprite.Sprite(images[5], screen_x * cube_size, screen_y * cube_size, batch=batch))
                     #pyglet.image.load("./assets/images/stone.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 elif type(blok) == lava:
                     pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
                 elif type(blok) == dirt:
-                    todraw.append(pyglet.sprite.Sprite(dirtimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                    todraw.append(pyglet.sprite.Sprite(images[1], screen_x * cube_size, screen_y * cube_size, batch=batch))
                     #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 elif type(blok) == flower:
-                    todraw.append(pyglet.sprite.Sprite(flowerimg, screen_x * cube_size, screen_y * cube_size, batch=batch))
+                    todraw.append(pyglet.sprite.Sprite(images[6], screen_x * cube_size, screen_y * cube_size, batch=batch))
                     #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
                 batch.draw()
             #Draw the player
@@ -360,12 +343,6 @@ def on_key_press(space, _):
     if key == "DOWN":
         if level1.creatureOnFloor(level1.player) == False:
             level1.player.fall()
-    if key == "SLASH":
-        level1.movecamera("down", 1)
-    if key == "PERIOD":
-        level1.mine("down")
-    if key == "L":
-        level1.movecamera("up", 1)
     if key == "P":
         level1.place("right")
     if key == "U":
