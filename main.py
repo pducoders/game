@@ -276,9 +276,14 @@ batch=pyglet.graphics.Batch()
 inventoryshown=False
 fps=pyglet.window.FPSDisplay(window=game_window)
 speed=1
-game_speed=30
+game_speed=3
+background=pyglet.image.load("./assets/images/night-test.png")
+background.width=game_window.width
+background.height=game_window.height
 def update():
-    game_window.clear()
+    #game_window.clear()
+    print(game_window.height)
+    background.blit(0,0)
     camera = 0
     images=[None,None,None,None,None,None,None]
     def loadimages():
@@ -288,7 +293,7 @@ def update():
         images[3] = pyglet.image.load("./assets/images/water.png")
         images[4] = pyglet.image.load("./assets/images/trunk.png")
         images[5] = pyglet.image.load("./assets/images/stone.png")
-        images[6] = pyglet.image.load("./assets/images/flower.png")
+        images[6] = pyglet.image.load("./assets/images/dirt.png")
     todraw=[]
     global speed
     if len(fps.label.text)==4:
@@ -296,7 +301,6 @@ def update():
             speed+=1
         if float(fps.label.text)>game_speed and speed>0.1:
             speed-=1
-    sleep(speed/6)
     try:
         loadimages()
     except Exception as ex:
@@ -306,7 +310,7 @@ def update():
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
-                pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                pyglet.image.load("./assets/images/kitty2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
@@ -318,6 +322,7 @@ def update():
                 #pyglet.image.load("./assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == water:
                 todraw.append(pyglet.sprite.Sprite(images[3], screen_x * cube_size, screen_y * cube_size, batch=batch))
+
                 #pyglet.image.load("./assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == trunk:
                 todraw.append(pyglet.sprite.Sprite(images[4], screen_x * cube_size, screen_y * cube_size, batch=batch))
@@ -378,11 +383,13 @@ def on_key_press(space, _):
         inventoryshown = False
 def leftrightmarker(_):
     if keys[key.LEFT]:
+        sleep(speed / 6)
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x -= 1
         level1.anti_collide(_)
     if keys[key.RIGHT]:
+        sleep(speed / 6)
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
@@ -397,6 +404,8 @@ def on_mouse_press(clickx, clicky, button, modifiers):
             inventory["topsoil"]-=1
     if button ==4:
         del blocksdict[adjustedx,adjustedy]
+    try: blocksdict[(adjustedx,adjustedy)]
+    except:pass
 # run it nothing below here expect for run
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
