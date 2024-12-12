@@ -162,6 +162,7 @@ leaves = [leaf(50, 1), leaf(49, 1), leaf(51, 1), leaf(50, 2), leaf(22, 1), leaf(
           leaf(114, 1), leaf(113, 1), leaf(115, 1), leaf(114, 2),
           leaf(123, 1), leaf(122, 1), leaf(124, 1), leaf(123, 2),
           leaf(130, 1), leaf(129, 1), leaf(131, 1), leaf(130, 2)]
+#referance for newclass.py[stays after lists] DO NOT EDIT OR DELETE(2)
 # bricks
 brickslist = [deepbricks, blocks, trunks, leaves]
 for bricktype in brickslist:
@@ -185,6 +186,7 @@ def makeflowers():
         if x % random(1,50) == 0:
             if (x,-1) not in blocksdict:
                 blocksdict[x,-1]=flower(x,-1)
+#referance for newclass.py[stays between layer making functions and their calls] DO NOT EDIT OR DELETE(1)
 makeflowers()
 makelava()
 maketopsoil()
@@ -285,15 +287,15 @@ def update():
     print(game_window.height)
     background.blit(0,0)
     camera = 0
-    images=[None,None,None,None,None,None,None]
+    images=[]
     def loadimages():
-        images[0] = pyglet.image.load("./assets/images/topsoil.png")
-        images[1] = pyglet.image.load("./assets/images/dirt.png")
-        images[2] = pyglet.image.load("./assets/images/leaves.png")
-        images[3] = pyglet.image.load("./assets/images/water.png")
-        images[4] = pyglet.image.load("./assets/images/trunk.png")
-        images[5] = pyglet.image.load("./assets/images/stone.png")
-        images[6] = pyglet.image.load("./assets/images/dirt.png")
+        images.append(pyglet.image.load("./assets/images/topsoil.png"))
+        images.append(pyglet.image.load("./assets/images/dirt.png"))
+        images.append(pyglet.image.load("./assets/images/leaves.png"))
+        images.append(pyglet.image.load("./assets/images/water.png"))
+        images.append(pyglet.image.load("./assets/images/trunk.png"))
+        images.append(pyglet.image.load("./assets/images/stone.png"))
+        images.append(pyglet.image.load("./assets/images/dirt.png"))
     todraw=[]
     global speed
     if len(fps.label.text)==4:
