@@ -1,17 +1,19 @@
+from itertools import zip_longest
 from time import sleep
-
+import time
 import pyglet
 from pyglet.window import key
 import itertools
 from random import randint as random
 from collections import Counter
 # nothing other than import above here
+game_start_time=time.time()
 # summons window
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 keys = key.KeyStateHandler()
 game_window.push_handlers(keys)
 # your player &rename it later
-class Player():
+class Player:
     def __init__(self):
         self.x = 0
         self.y = 0
@@ -48,7 +50,7 @@ class Player():
     def anti_collide(self):
         self.x = self.prev_x
         self.y = self.prev_y
-class cat():
+class cat:
     def __init__(self):
         self.x = 0
         self.y = 0
@@ -88,113 +90,130 @@ class cat():
 
 
 # topsoil &rename
-class topsoil():
+class topsoil:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
 
 # bricks useful &change to sprite
-class water():
+class water:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
-class leaf():
+class leaf:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
 
 
-class trunk():
+class trunk:
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
 
 # &remove
-class endPoint():
+class endPoint:
     def __init__(self, x, color):
         self.x = x
         self.color = color
 
-class lava():
+class lava:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.color = (255, 75, 0)
-class stone():
+class stone:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-class dirt():
+class dirt:
     def __init__(self,x,y):
         self.x=x
         self.y=y
-class flower():
+class flower:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-class cloud():
+class diamondore:
     def __init__(self, x, y):
         self.x = x
         self.y = y
+class emeraldore:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+class rubyore:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+class goldore:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+class coal:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+class cabbage:
+    def __init__(self,x,y):
+        self.x= x
+        self.y=y
 blocksdict = dict()
 inventory = Counter()
+blok_in_hand=topsoil
 deepbricks = [topsoil(16, 2), topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
               topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0),
               topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3),
               topsoil(21, 2), topsoil(58, 13), topsoil(60, 13), topsoil(96, 0), topsoil(36, 2)]
 # blocks cooridinates &rename make sprite
 blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12), water(79, 8), water(95, 0), water(70, -2)]
-trunks = [trunk(50, 0), trunk(50, -1), trunk(30, 0), trunk(30, -1), trunk(67, 0), trunk(67, -1), trunk(22, 0),
-          trunk(22, -1), trunk(74, 0), trunk(74, -1), trunk(43, 0), trunk(43, -1), trunk(100, -1), trunk(100, 0),
-          trunk(89, -1), trunk(89, 0), trunk(123, -1), trunk(123, 0), trunk(97, -1), trunk(97, -1), trunk(107, 0),
-          trunk(107, -1), trunk(114, 0), trunk(114, -1), trunk(130, 0), trunk(130, -1)]
-leaves = [leaf(50, 1), leaf(49, 1), leaf(51, 1), leaf(50, 2), leaf(22, 1), leaf(21, 1),
-          leaf(23, 1), leaf(22, 2), leaf(30, 1), leaf(29, 1), leaf(31, 1), leaf(30, 2),
-          leaf(43, 1), leaf(42, 1), leaf(44, 1), leaf(43, 2), leaf(67, 1), leaf(66, 1), leaf(68, 1), leaf(67, 2),
-          leaf(74, 1), leaf(73, 1), leaf(75, 1), leaf(74, 2),
-          leaf(89, 1), leaf(88, 1), leaf(90, 1), leaf(89, 2),
-          leaf(100, 1), leaf(99, 1), leaf(101, 1), leaf(100, 2),
-          leaf(107, 1), leaf(106, 1), leaf(108, 1), leaf(107, 2),
-          leaf(114, 1), leaf(113, 1), leaf(115, 1), leaf(114, 2),
-          leaf(123, 1), leaf(122, 1), leaf(124, 1), leaf(123, 2),
-          leaf(130, 1), leaf(129, 1), leaf(131, 1), leaf(130, 2)]
+ores=[diamondore,emeraldore,rubyore,coal,goldore]
 #referance for newclass.py[stays after lists] DO NOT EDIT OR DELETE(2)
 # bricks
-brickslist = [deepbricks, blocks, trunks, leaves]
+classlist=[topsoil,water,dirt,stone,trunk,flower,leaf,diamondore,emeraldore,rubyore,coal,goldore]
+brickslist = [deepbricks, blocks]
 for bricktype in brickslist:
     for brick in bricktype:
         blocksdict[(brick.x, brick.y)] = brick
 # makes deep ground
-def makedirt():
-    for x,y in itertools.product(range(-1000, 1000), range(-10, -2)):
-        blocksdict[(x,y)] = dirt(x,y)
-def maketopsoil():
+def makeblocks():
+    for x,y in itertools.product(range(-1000, 1000), range(-30, -2)):
+        if y > -10:
+            blocksdict[(x,y)] = dirt(x,y)
+        if -20 >= y >= -30:
+            blocksdict[(x, y)] = lava(x, y)
+        if -10>= y >=-20:
+            if random(1, 100) == 1:
+                blocksdict[(x, y)] = ores[random(0, len(ores) - 1)](x, y)
+            else:
+                blocksdict[(x, y)] = stone(x, y)
     for x in range(-1000,1000):
-        blocksdict[(x,-2)] = topsoil(x,-2)
-def makelava():
-    for x,y in itertools.product(range(-1000, 1000), range(-30, -20)):
-        blocksdict[(x,y)] = lava(x,y)
-def makestone():
-    for x,y in itertools.product(range(-1000, 1000), range(-20,-5)):
-        blocksdict[(x,y)] = stone(x,y)
-def makeflowers():
-    for x in range(-1000,1000):
+        blocksdict[(x, -2)] = topsoil(x, -2)
+        if x % random(1, 70) == 0:
+            if (x,-1)or(x,0) not in blocksdict:
+                tree_height=random(1,10)
+                for tree_y in range(tree_height):
+                    blocksdict[x,tree_y-1]=trunk(x,tree_y-1)
+                    if tree_height==tree_y+1:
+                        blocksdict[x-1,tree_y]=leaf(x-1,tree_y)
+                        blocksdict[x , tree_y] = leaf(x - 1, tree_y)
+                        blocksdict[x + 1, tree_y] = leaf(x - 1, tree_y)
+                        blocksdict[x, tree_y+1] = leaf(x, tree_y+1)
         if x % random(1,50) == 0:
             if (x,-1) not in blocksdict:
                 blocksdict[x,-1]=flower(x,-1)
+blocksdict[(-1, -1)] = cabbage(-1, -1)
 #referance for newclass.py[stays between layer making functions and their calls] DO NOT EDIT OR DELETE(1)
-makeflowers()
-makelava()
-maketopsoil()
-makestone()
-makedirt()
-# makes all the stuff
+makeblocks()
+def round_to_cube_size(number):
+    return cube_size*round(number/cube_size)
+game_length=0
 class level():
-    def __init__(self, deepbricks, end, player, blocks, cat, creatures, trunks, leaves, dict):
+    def __init__(self, deepbricks, end, player, blocks, cat, creatures, dict):
         self.deepbricks = deepbricks
         self.end = end
         self.player = player
@@ -202,8 +221,6 @@ class level():
         self.blocks = blocks
         self.cat = cat
         self.creatures = [self.cat, self.player]
-        self.trunks = trunks
-        self.leaves = leaves
         self.dict = blocksdict
 
     # dont walk into blocks
@@ -226,25 +243,28 @@ class level():
             self.cat.x += 1
         if self.cat.x > self.player.x - 3:
             self.cat.x -= 1
-
+        self.cat.prev_x=self.cat.x
+        self.cat.prev_y=self.cat.y
     def mine(self, direction):
         try:
             if direction == "down":
                 del blocksdict[self.player.x, self.player.y - 1]
-                inventory["topsoil"] += 1
+                inventory[topsoil] += 1
             if direction == "up":
                 del blocksdict[self.player.x, self.player.y + 1]
-                inventory["topsoil"] += 1
+                inventory[topsoil] += 1
             if direction == "right":
                 del blocksdict[self.player.x + 1, self.player.y]
-                inventory["topsoil"] += 1
+                inventory[topsoil] += 1
             if direction == "left":
                 del blocksdict[self.player.x - 1, self.player.y]
-                inventory["topsoil"] += 1
         except KeyError:
             pass
+    def add_to_inventory(self, blok):
+        inventory[blok]+=1
+
     def place(self, direction):
-        if inventory["topsoil"] > 0:
+        if inventory[topsoil] > 0:
             if direction == "down":
                 blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
             if direction == "up":
@@ -253,7 +273,7 @@ class level():
                 blocksdict[(self.player.x + 1, self.player.y)] = topsoil(self.player.x + 1, self.player.y)
             if direction == "right":
                 blocksdict[(self.player.x - 1, self.player.y)] = topsoil(self.player.x - 1, self.player.y)
-            inventory["topsoil"] -= 1
+            inventory[topsoil] -= 1
     # stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
         for coords, blok in blocksdict.items():
@@ -268,8 +288,6 @@ level1 = level(
     blocks=blocks,
     cat=cat(),
     creatures=[cat(), Player()],
-    trunks=trunks,
-    leaves=leaves,
     dict=blocksdict,
 )
 # size of everything do not chnage
@@ -280,24 +298,55 @@ fps=pyglet.window.FPSDisplay(window=game_window)
 speed=1
 game_speed=3
 background=pyglet.image.load("./assets/images/night-test.png")
+night=pyglet.shapes.Rectangle(0,0,1200,900,(0,0,0,0))
+sun=pyglet.image.load("./assets/images/bookshelf.png")
+sun_x=0
+sun_y=0
 background.width=game_window.width
 background.height=game_window.height
+game_window.set_mouse_visible(False)
+mouse=pyglet.shapes.Rectangle(0,0,cube_size,cube_size,(255,255,255,100))
+blok_in_hand_x = 0
+blok_in_hand_y = 0
+sun_falling = False
+def sun_rise():
+    global sun_x,sun_y,sun_falling
+    if sun_y>8:
+        sun_falling=True
+    if sun_falling:
+        sun_y-=1
+    else:
+        sun_y+=1
+    sun_x+=1
+cabbagegrowth=12
 def update():
-    #game_window.clear()
-    print(game_window.height)
-    background.blit(0,0)
+    global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth
+    if night.color[3]>100:
+        background.blit(0,0)
+    else:
+        game_window.clear()
+    if game_length>10:cabbagegrowth=13
+    sun.blit(sun_x,sun_y)
     camera = 0
     images=[]
+    sun_rise()
+    night.color=(0,0,0,int(game_length/2))
     def loadimages():
         images.append(pyglet.image.load("./assets/images/topsoil.png"))
         images.append(pyglet.image.load("./assets/images/dirt.png"))
-        images.append(pyglet.image.load("./assets/images/leaves.png"))
+        images.append(pyglet.image.load("assets/images/leaf.png"))
         images.append(pyglet.image.load("./assets/images/water.png"))
         images.append(pyglet.image.load("./assets/images/trunk.png"))
         images.append(pyglet.image.load("./assets/images/stone.png"))
-        images.append(pyglet.image.load("./assets/images/dirt.png"))
+        images.append(pyglet.image.load("./assets/images/flower.png"))
+        images.append(pyglet.image.load("assets/images/diamondore.png"))
+        images.append(pyglet.image.load("./assets/images/rubyore.png"))
+        images.append(pyglet.image.load("assets/images/emeraldore.png"))
+        images.append(pyglet.image.load("assets/images/goldore.png"))
+        images.append(pyglet.image.load("./assets/images/coal.png"))
+        images.append(pyglet.image.load("./assets/images/cabbageplanted.png"))
+        images.append(pyglet.image.load("./assets/images/cabbagegrown.png"))
     todraw=[]
-    global speed
     if len(fps.label.text)==4:
         if float(fps.label.text)<game_speed:
             speed+=1
@@ -321,7 +370,7 @@ def update():
                 #pyglet.image.load("./assets/images/topsoil.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == leaf:
                 todraw.append(pyglet.sprite.Sprite(images[2], screen_x * cube_size, screen_y * cube_size, batch=batch))
-                #pyglet.image.load("./assets/images/leaves.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                #pyglet.image.load("./assets/images/leaf.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             elif type(blok) == water:
                 todraw.append(pyglet.sprite.Sprite(images[3], screen_x * cube_size, screen_y * cube_size, batch=batch))
 
@@ -340,19 +389,43 @@ def update():
             elif type(blok) == flower:
                 todraw.append(pyglet.sprite.Sprite(images[6], screen_x * cube_size, screen_y * cube_size, batch=batch))
                 #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-            batch.draw()
+            elif type(blok) == emeraldore:
+                todraw.append(pyglet.sprite.Sprite(images[8], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            elif type(blok) == diamondore:
+                todraw.append(pyglet.sprite.Sprite(images[7], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            elif type(blok) == rubyore:
+                todraw.append(pyglet.sprite.Sprite(images[9], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            elif type(blok) == goldore:
+                todraw.append(pyglet.sprite.Sprite(images[10], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            elif type(blok) == coal:
+                todraw.append(pyglet.sprite.Sprite(images[11], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            elif type(blok) == cabbage:
+                todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
+        batch.draw()
         #Draw the player
         pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
                             cube_size).draw()
         fps.draw()
-        if inventoryshown:
-            for i in range(inventory["topsoil"]):
-                pyglet.image.load("./assets/images/topsoil.png").blit(i * cube_size - camera, 1 * cube_size + 10)
+    if inventoryshown:
+        y=0
+        for (classname,x) in zip_longest(classlist,range(int(game_window.width/cube_size))):
+            if classname is not None:
+                pyglet.image.load("./assets/images/"+str(classname.__name__)+".png").blit(x * cube_size, y * cube_size)
+                pyglet.text.Label(str(inventory[classname.__name__]),x=x*cube_size,y=y*cube_size).draw()
+            if x>30:y+=1
+            if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= classname
+        pyglet.shapes.Rectangle(blok_in_hand_x*cube_size,blok_in_hand_y*cube_size,cube_size,cube_size,(0,100,255,200)).draw()
+    mouse.draw()
+    night.draw()
+    game_length=int(time.time())-int(game_start_time)
 def on_key_press(space, _):
-    global inventoryshown
+    global inventoryshown,blok_in_hand_y,blok_in_hand_x
     key = pyglet.window.key.symbol_string(space)
     level1.player.prev_x = level1.player.x
     level1.player.prev_y = level1.player.y
+    if inventoryshown:
+        if key=="RIGHT": blok_in_hand_x += 1
+        if key=="LEFT": blok_in_hand_x -= 1
     if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
@@ -397,17 +470,24 @@ def leftrightmarker(_):
         level1.player.x += 1
         level1.anti_collide(_)
 @game_window.event
-def on_mouse_press(clickx, clicky, button, modifiers):
-    adjustedx = int(clickx / 32) - 15 + level1.player.x
-    adjustedy=int(clicky/32)-5+level1.player.y
-    if button ==1:
-        if inventory["topsoil"]>0:
-            blocksdict[adjustedx,adjustedy]=topsoil(adjustedx,adjustedy)
-            inventory["topsoil"]-=1
-    if button ==4:
-        del blocksdict[adjustedx,adjustedy]
-    try: blocksdict[(adjustedx,adjustedy)]
-    except:pass
+def on_mouse_motion(x,y,dx,dy):
+    global mouse
+    mouse = pyglet.shapes.Rectangle(round_to_cube_size(x), round_to_cube_size(y), cube_size, cube_size, (255, 255, 255, 100))
+@game_window.event
+def on_mouse_press(x,y,button,modifiers):
+    adjusted_mouse_x = int(mouse.x / 32) - 15 + level1.player.x
+    adjusted_mouse_y = int(mouse.y / 32) - 5 + level1.player.y
+    if button == 1:
+        if inventory[str(blok_in_hand.__name__)] > 0:
+            blocksdict[adjusted_mouse_x, adjusted_mouse_y] = blok_in_hand(adjusted_mouse_x, adjusted_mouse_y)
+            inventory[str(blok_in_hand.__name__)] -= 1
+    if button == 4:
+        try:
+            print(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
+            level1.add_to_inventory(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
+            del blocksdict[adjusted_mouse_x, adjusted_mouse_y]
+        except KeyError:
+            pass
 # run it nothing below here expect for run
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
