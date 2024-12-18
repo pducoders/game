@@ -1,4 +1,6 @@
 main=open("./gdash.py","r")
+print("Newclass.py has been deprecated on the latest update; do not use.")
+raise Exception("Deprecated")
 newfile=open("./new.py","w")
 classname=input("Classname: ")
 filename=input("Filename? ")
