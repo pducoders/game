@@ -227,6 +227,8 @@ class level():
     def anti_collide(self, _):
         for creature in level1.creatures:
             for coords, blok in blocksdict.items():
+                if type(creature)==Player and creature.x == blok.x  and (creature.y == blok.y or creature.y+1==blok.y):
+                    creature.anti_collide()
                 if creature.x == blok.x and creature.y == blok.y:
                     creature.anti_collide()
                 if creature.x+1 == blok.x and creature.y == blok.y and type(creature)==cat:
@@ -297,7 +299,11 @@ inventoryshown=False
 fps=pyglet.window.FPSDisplay(window=game_window)
 speed=1
 game_speed=3
-background=pyglet.image.load("./assets/images/night-test.png")
+try:
+    background=pyglet.image.load("./assets/images/night-test.png")
+except:
+    print("night not found,sorry;download night-test from google drive")
+    exit()
 night=pyglet.shapes.Rectangle(0,0,1200,900,(0,0,0,0))
 sun=pyglet.image.load("./assets/images/bookshelf.png")
 sun_x=0
@@ -319,12 +325,14 @@ def sun_rise():
         sun_y+=1
     sun_x+=1
 cabbagegrowth=12
+mineanimation=pyglet.shapes.Rectangle(0,0,cube_size,cube_size,(100,0,100,100))
 def update():
     global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth
     if night.color[3]>100:
         background.blit(0,0)
     else:
         game_window.clear()
+
     if game_length>10:cabbagegrowth=13
     sun.blit(sun_x,sun_y)
     camera = 0
@@ -334,15 +342,15 @@ def update():
     def loadimages():
         images.append(pyglet.image.load("./assets/images/topsoil.png"))
         images.append(pyglet.image.load("./assets/images/dirt.png"))
-        images.append(pyglet.image.load("assets/images/leaf.png"))
+        images.append(pyglet.image.load("./assets/images/leaf.png"))
         images.append(pyglet.image.load("./assets/images/water.png"))
         images.append(pyglet.image.load("./assets/images/trunk.png"))
         images.append(pyglet.image.load("./assets/images/stone.png"))
         images.append(pyglet.image.load("./assets/images/flower.png"))
-        images.append(pyglet.image.load("assets/images/diamondore.png"))
+        images.append(pyglet.image.load("./assets/images/diamondore.png"))
         images.append(pyglet.image.load("./assets/images/rubyore.png"))
-        images.append(pyglet.image.load("assets/images/emeraldore.png"))
-        images.append(pyglet.image.load("assets/images/goldore.png"))
+        images.append(pyglet.image.load("./assets/images/emeraldore.png"))
+        images.append(pyglet.image.load("./assets/images/goldore.png"))
         images.append(pyglet.image.load("./assets/images/coal.png"))
         images.append(pyglet.image.load("./assets/images/cabbageplanted.png"))
         images.append(pyglet.image.load("./assets/images/cabbagegrown.png"))
@@ -403,8 +411,7 @@ def update():
                 todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
         batch.draw()
         #Draw the player
-        pyglet.shapes.Rectangle(15 * cube_size, 5 * cube_size, cube_size,
-                            cube_size).draw()
+        pyglet.shapes.Rectangle(15*cube_size,5*cube_size,cube_size,cube_size*2).draw()
         fps.draw()
     if inventoryshown:
         y=0
@@ -483,7 +490,8 @@ def on_mouse_press(x,y,button,modifiers):
             inventory[str(blok_in_hand.__name__)] -= 1
     if button == 4:
         try:
-            print(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
+            mineanimation.x,mineanimation.y=mouse.x,mouse.y
+
             level1.add_to_inventory(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
             del blocksdict[adjusted_mouse_x, adjusted_mouse_y]
         except KeyError:
