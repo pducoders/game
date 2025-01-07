@@ -6,13 +6,37 @@ from pyglet.window import key
 import itertools
 from random import randint as random
 from collections import Counter
+from urllib.request import urlretrieve
+import os.path
 # nothing other than import above here
 game_start_time=time.time()
 # summons window
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 keys = key.KeyStateHandler()
 game_window.push_handlers(keys)
-# your player &rename it later
+dependencies=[
+    ("pyglet.image.load(","./assets/images/topsoil.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
+        ,("pyglet.image.load(","./assets/images/dirt.png","1l-LFTTHy2jrx51ZXVOi2ZLo6zrmFN96u")
+        ,("pyglet.image.load(","./assets/images/leaf.png","1P6IQW7-mMSsk1YmR4n-Yopl5uZw2IcnE")
+        ,("pyglet.image.load(","./assets/images/water.png","1IyEV0FXw_qHcNpiGsECuiEfXLQ-zWmBU")
+        ,("pyglet.image.load(","./assets/images/trunk.png","1eP3XVuvL68GSB1ZtzeNe35UDlvRLl00z")
+        ,("pyglet.image.load(","./assets/images/stone.png","1_PdchorIC0sAG7EjTPM5X10Kwhu6YApy")
+        ,("pyglet.image.load(","./assets/images/flower.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
+        ,("pyglet.image.load(","./assets/images/diamondore.png","1_xDSW7clXE59bftjW_kaslX7y3ytb8LP")
+        ,("pyglet.image.load(","./assets/images/rubyore.png","1V_mgKUg5kAct90oODaw4ZpQQ_O10LAmg")
+        ,("pyglet.image.load(","./assets/images/emeraldore.png","1VT_cmTjwgSGobsL8sL17Mev4ythDnAJ4")
+        ,("pyglet.image.load(","./assets/images/goldore.png","1JNOnxYXEf2rNEkPI3_1SrbroOck8Mh0d")
+        ,("pyglet.image.load(","./assets/images/coal.png","1WVTEwMeaMdcKBlg0mKH601UQHahNJFhW")
+        ,("pyglet.image.load(","./assets/images/cabbageplanted.png","1qPeKoihXoAHo7iSysp6Umx2w8JujHElk")
+        ,("pyglet.image.load(","./assets/images/cabbagegrown.png","1JJjtsjKAXY8OyrQcMNvlTLHCoT941MPh")
+        ,("pyglet.image.load(","./assets/images/cabbagegrown.png","1JJjtsjKAXY8OyrQcMNvlTLHCoT941MPh")
+        ,("pyglet.image.load(","./assets/images/sheepegg.png","1-Z1cnrr8IvKxncA_0O5H7fYUxiD1yaz2")
+]
+for file in dependencies:
+    if not os.path.exists(file[1]):
+        urlretrieve("https://drive.google.com/uc?export=download&id="+file[2],file[1])
+
+# your player
 class Player:
     def __init__(self):
         self.x = 0
@@ -352,7 +376,8 @@ game_speed=3
 try:
     background=pyglet.image.load("./assets/images/night-test.png")
 except:
-    print("night not foungd,sorry;download night-test from google drive")
+    urlretrieve("https://drive.google.com/uc?export=download&id=1KvmPuDHo26Fqx1uk6FqabqjX7FBqyA7z", "./assets/images/night-test.png")
+    print("downloaded night please restart program")
     exit()
 night=pyglet.shapes.Rectangle(0,0,1200,900,(0,0,0,0))
 sun=pyglet.image.load("./assets/images/bookshelf.png")
@@ -379,7 +404,7 @@ cabbagegrowth=12
 cats=[]
 shleep_morning=False
 def update():
-    global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning
+    global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies
     if night.color[3]>100:
         background.blit(0,0)
     else:
@@ -394,33 +419,16 @@ def update():
     else:
         night.color=(0,0,0,int(game_length/2))
     def loadimages():
-        images.append(pyglet.image.load("./assets/images/topsoil.png"))
-        images.append(pyglet.image.load("./assets/images/dirt.png"))
-        images.append(pyglet.image.load("./assets/images/leaf.png"))
-        images.append(pyglet.image.load("./assets/images/water.png"))
-        images.append(pyglet.image.load("./assets/images/trunk.png"))
-        images.append(pyglet.image.load("./assets/images/stone.png"))
-        images.append(pyglet.image.load("./assets/images/flower.png"))
-        images.append(pyglet.image.load("./assets/images/diamondore.png"))
-        images.append(pyglet.image.load("./assets/images/rubyore.png"))
-        images.append(pyglet.image.load("./assets/images/emeraldore.png"))
-        images.append(pyglet.image.load("./assets/images/goldore.png"))
-        images.append(pyglet.image.load("./assets/images/coal.png"))
-        images.append(pyglet.image.load("./assets/images/cabbageplanted.png"))
-        images.append(pyglet.image.load("./assets/images/cabbagegrown.png"))
-        images.append(pyglet.image.load("./assets/images/cabbagegrown.png"))
-        images.append(pyglet.image.load("./assets/images/sheepegg.png"))
+        for image in dependencies:
+            images.append(pyglet.image.load(image[1]))
     todraw=[]
     if len(fps.label.text)==4:
         if float(fps.label.text)<game_speed:
             speed+=1
         if float(fps.label.text)>game_speed and speed>0.1:
             speed-=1
-    try:
-        loadimages()
-    except Exception as ex:
-        print(str(ex)+" Download needed image from the images folder in Coding folder ")
-        exit()
+
+    loadimages()
     if not inventoryshown:
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
