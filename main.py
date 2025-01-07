@@ -162,9 +162,25 @@ class cabbage:
     def __init__(self,x,y):
         self.x= x
         self.y=y
+class sheep:
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
+class sheepegg:
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
+class sheepmilk:
+    def __init__(self,x,y):
+        self.x=x
+        self.y=y
 blocksdict = dict()
 inventory = Counter()
 blok_in_hand=topsoil
+sheeps=[sheep(1,1)]
+for x,y in itertools.product(range(-1000,1000),range(-1,5)):
+    if random(1,200)==1:
+        sheeps.append(sheep(x,y))
 deepbricks = [topsoil(16, 2), topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
               topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0),
               topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3),
@@ -174,11 +190,12 @@ blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12)
 ores=[diamondore,emeraldore,rubyore,coal,goldore]
 #referance for newclass.py[stays after lists] DO NOT EDIT OR DELETE(2)
 # bricks
-classlist=[topsoil,water,dirt,stone,trunk,flower,leaf,diamondore,emeraldore,rubyore,coal,goldore]
-brickslist = [deepbricks, blocks]
+classlist=[topsoil,water,dirt,stone,trunk,flower,leaf,diamondore,emeraldore,rubyore,coal,goldore,sheepegg]
+brickslist = [deepbricks, blocks,sheeps]
 for bricktype in brickslist:
     for brick in bricktype:
         blocksdict[(brick.x, brick.y)] = brick
+ashleep=False
 # makes deep ground
 def makeblocks():
     for x,y in itertools.product(range(-1000, 1000), range(-30, -2)):
@@ -239,7 +256,31 @@ class level():
         for creature in self.creatures:
             if self.creatureOnFloor(creature) == False:
                 creature.fall()
-
+    def movesheep(self,_):
+        def deletesheep(coords):
+            if type(blocksdict[coords])==sheep:
+                del blocksdict[coords]
+        sheeplist=[]
+        for coords,blok in blocksdict.items():
+            if type(blok)==sheep:
+                sheeplist.append(coords)
+        for coords in sheeplist:
+            sheepexists=True
+            try:
+                blocksdict[coords]
+            except KeyError:sheepexists=False
+            if not sheepexists:continue
+            if random(1,20)==1:
+                deletesheep(coords)
+                blocksdict[(coords[0], coords[1] + 3)] = sheep(coords[0], coords[1] + 3)
+                continue
+            if not self.creatureOnFloor(coords):
+                deletesheep(coords)
+                blocksdict[(coords[0], coords[1]-1)] = sheep(coords[0], coords[1]-1)
+                continue
+            distance = random(-2, 2)
+            deletesheep(coords)
+            blocksdict[(coords[0] - distance, coords[1])] = sheep(coords[0] - distance, coords[1])
     def movecat(self, _):
         if self.cat.x < self.player.x - 3:
             self.cat.x += 1
@@ -264,7 +305,11 @@ class level():
             pass
     def add_to_inventory(self, blok):
         inventory[blok]+=1
-
+    def go_to_shleep(self, sheep_x, sheep_y):
+        self.player.x=sheep_x
+        self.player.y=sheep_y
+        global ashleep
+        ashleep=True
     def place(self, direction):
         if inventory[topsoil] > 0:
             if direction == "down":
@@ -278,9 +323,14 @@ class level():
             inventory[topsoil] -= 1
     # stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
-        for coords, blok in blocksdict.items():
-            if creature.y == blok.y + 1 and creature.x == blok.x:
-                return True
+        if type(creature)==tuple:
+            for coords,blok in blocksdict.items():
+                if creature[1]==blok.y+1 and creature[0]==blok.x:
+                    return True
+        else:
+            for coords, blok in blocksdict.items():
+                if creature.y == blok.y + 1 and creature.x == blok.x:
+                    return True
         return False
 # summons level
 level1 = level(
@@ -302,7 +352,7 @@ game_speed=3
 try:
     background=pyglet.image.load("./assets/images/night-test.png")
 except:
-    print("night not found,sorry;download night-test from google drive")
+    print("night not foungd,sorry;download night-test from google drive")
     exit()
 night=pyglet.shapes.Rectangle(0,0,1200,900,(0,0,0,0))
 sun=pyglet.image.load("./assets/images/bookshelf.png")
@@ -315,6 +365,7 @@ mouse=pyglet.shapes.Rectangle(0,0,cube_size,cube_size,(255,255,255,100))
 blok_in_hand_x = 0
 blok_in_hand_y = 0
 sun_falling = False
+shleep_length=0
 def sun_rise():
     global sun_x,sun_y,sun_falling
     if sun_y>8:
@@ -325,20 +376,23 @@ def sun_rise():
         sun_y+=1
     sun_x+=1
 cabbagegrowth=12
-mineanimation=pyglet.shapes.Rectangle(0,0,cube_size,cube_size,(100,0,100,100))
+cats=[]
+shleep_morning=False
 def update():
-    global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth
+    global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning
     if night.color[3]>100:
         background.blit(0,0)
     else:
         game_window.clear()
-
     if game_length>10:cabbagegrowth=13
     sun.blit(sun_x,sun_y)
     camera = 0
     images=[]
     sun_rise()
-    night.color=(0,0,0,int(game_length/2))
+    if ashleep:
+        night.color = (0, 0, 0, int(shleep_length *12))
+    else:
+        night.color=(0,0,0,int(game_length/2))
     def loadimages():
         images.append(pyglet.image.load("./assets/images/topsoil.png"))
         images.append(pyglet.image.load("./assets/images/dirt.png"))
@@ -354,6 +408,8 @@ def update():
         images.append(pyglet.image.load("./assets/images/coal.png"))
         images.append(pyglet.image.load("./assets/images/cabbageplanted.png"))
         images.append(pyglet.image.load("./assets/images/cabbagegrown.png"))
+        images.append(pyglet.image.load("./assets/images/cabbagegrown.png"))
+        images.append(pyglet.image.load("./assets/images/sheepegg.png"))
     todraw=[]
     if len(fps.label.text)==4:
         if float(fps.label.text)<game_speed:
@@ -394,25 +450,31 @@ def update():
             elif type(blok) == dirt:
                 todraw.append(pyglet.sprite.Sprite(images[1], screen_x * cube_size, screen_y * cube_size, batch=batch))
                 #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-            elif type(blok) == flower:
+            if type(blok) == flower:
                 todraw.append(pyglet.sprite.Sprite(images[6], screen_x * cube_size, screen_y * cube_size, batch=batch))
                 #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-            elif type(blok) == emeraldore:
+            if type(blok) == emeraldore:
                 todraw.append(pyglet.sprite.Sprite(images[8], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            elif type(blok) == diamondore:
+            if type(blok) == diamondore:
                 todraw.append(pyglet.sprite.Sprite(images[7], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            elif type(blok) == rubyore:
+            if type(blok) == rubyore:
                 todraw.append(pyglet.sprite.Sprite(images[9], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            elif type(blok) == goldore:
+            if type(blok) == goldore:
                 todraw.append(pyglet.sprite.Sprite(images[10], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            elif type(blok) == coal:
+            if type(blok) == coal:
                 todraw.append(pyglet.sprite.Sprite(images[11], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            elif type(blok) == cabbage:
+            if type(blok) == cabbage:
                 todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            if type(blok)==sheep:
+                todraw.append(pyglet.sprite.Sprite(images[14], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            if type(blok)==sheepegg:
+                todraw.append(pyglet.sprite.Sprite(images[15], screen_x * cube_size, screen_y * cube_size, batch=batch))
+        fps.draw()
         batch.draw()
         #Draw the player
-        pyglet.shapes.Rectangle(15*cube_size,5*cube_size,cube_size,cube_size*2).draw()
+        pyglet.sprite.Sprite(pyglet.image.load("./assets/images/draftforcharecter.png"),15*cube_size,5*cube_size).draw()
         fps.draw()
+
     if inventoryshown:
         y=0
         for (classname,x) in zip_longest(classlist,range(int(game_window.width/cube_size))):
@@ -424,6 +486,14 @@ def update():
         pyglet.shapes.Rectangle(blok_in_hand_x*cube_size,blok_in_hand_y*cube_size,cube_size,cube_size,(0,100,255,200)).draw()
     mouse.draw()
     night.draw()
+    if ashleep:
+        if shleep_length<240/12 and shleep_morning==False:
+            shleep_length=int(time.time())-int(game_start_time)
+        else:
+            shleep_morning=True
+        if shleep_morning:
+            print(game_length-shleep_length)
+            shleep_length=int(time.time())-int(game_start_time)
     game_length=int(time.time())-int(game_start_time)
 def on_key_press(space, _):
     global inventoryshown,blok_in_hand_y,blok_in_hand_x
@@ -463,6 +533,7 @@ def on_key_press(space, _):
         inventoryshown=True
     if key =="F":
         inventoryshown = False
+    if key=="Z":level1.go_to_shleep(1,1)
 def leftrightmarker(_):
     if keys[key.LEFT]:
         sleep(speed / 6)
@@ -485,13 +556,19 @@ def on_mouse_press(x,y,button,modifiers):
     adjusted_mouse_x = int(mouse.x / 32) - 15 + level1.player.x
     adjusted_mouse_y = int(mouse.y / 32) - 5 + level1.player.y
     if button == 1:
-        if inventory[str(blok_in_hand.__name__)] > 0:
-            blocksdict[adjusted_mouse_x, adjusted_mouse_y] = blok_in_hand(adjusted_mouse_x, adjusted_mouse_y)
-            inventory[str(blok_in_hand.__name__)] -= 1
+        try:blocksdict[adjusted_mouse_x, adjusted_mouse_y]
+        except:
+            if inventory[str(blok_in_hand.__name__)] > 0:
+                blocksdict[adjusted_mouse_x, adjusted_mouse_y] = blok_in_hand(adjusted_mouse_x, adjusted_mouse_y)
+                inventory[str(blok_in_hand.__name__)] -= 1
+        else:
+            if type(blocksdict[adjusted_mouse_x, adjusted_mouse_y])==sheep:
+                level1.go_to_shleep(adjusted_mouse_x, adjusted_mouse_y)
     if button == 4:
         try:
-            mineanimation.x,mineanimation.y=mouse.x,mouse.y
-
+            print(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
+            if type(blocksdict[adjusted_mouse_x, adjusted_mouse_y])==sheep:
+                level1.add_to_inventory("sheepegg")
             level1.add_to_inventory(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
             del blocksdict[adjusted_mouse_x, adjusted_mouse_y]
         except KeyError:
@@ -503,4 +580,5 @@ pyglet.clock.schedule_interval(leftrightmarker, 0.1)
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
 pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.movecat, 0.5)
+pyglet.clock.schedule_interval(level1.movesheep, 0.5)
 pyglet.app.run()
