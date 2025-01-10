@@ -39,12 +39,12 @@ for file in dependencies:
 # your player
 class Player:
     def __init__(self):
-        self.x = 0
-        self.y = 0
+        self.x = 5
+        self.y = 2
         self.shape = "cube"
         self.gravity = "down"
-        self.prev_x = 0
-        self.prev_y = 0
+        self.prev_x = 4
+        self.prev_y = 2
 
     # jump
     def jump(self):
