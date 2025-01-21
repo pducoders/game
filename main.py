@@ -35,7 +35,6 @@ dependencies=[
 for file in dependencies:
     if not os.path.exists(file[1]):
         urlretrieve("https://drive.google.com/uc?export=download&id="+file[2],file[1])
-
 # your player
 class Player:
     def __init__(self):
@@ -403,6 +402,9 @@ def sun_rise():
 cabbagegrowth=12
 cats=[]
 shleep_morning=False
+drawdict=dict()
+for x,y in itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size)):
+    drawdict[x,y]="y"
 def update():
     global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies
     if night.color[3]>100:
@@ -438,51 +440,46 @@ def update():
                 blok=blocksdict[blok_cord]
             else:continue
             if type(blok) == topsoil:
-                todraw.append(pyglet.sprite.Sprite(images[0], screen_x * cube_size, screen_y * cube_size, batch=batch))
-                #pyglet.image.load("./assets/images/topsoil.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                bloktype=0
             elif type(blok) == leaf:
-                todraw.append(pyglet.sprite.Sprite(images[2], screen_x * cube_size, screen_y * cube_size, batch=batch))
-                #pyglet.image.load("./assets/images/leaf.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                bloktype=2
             elif type(blok) == water:
-                todraw.append(pyglet.sprite.Sprite(images[3], screen_x * cube_size, screen_y * cube_size, batch=batch))
-
-                #pyglet.image.load("./assets/images/water.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                bloktype=3
             elif type(blok) == trunk:
-                todraw.append(pyglet.sprite.Sprite(images[4], screen_x * cube_size, screen_y * cube_size, batch=batch))
-                #pyglet.image.load("./assets/images/wheatplanted.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                bloktype=4
             elif type(blok) == stone:
-                todraw.append(pyglet.sprite.Sprite(images[5], screen_x * cube_size, screen_y * cube_size, batch=batch))
-                #pyglet.image.load("./assets/images/stone.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                bloktype=5
             elif type(blok) == lava:
                 pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
             elif type(blok) == dirt:
-                todraw.append(pyglet.sprite.Sprite(images[1], screen_x * cube_size, screen_y * cube_size, batch=batch))
-                #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-            if type(blok) == flower:
-                todraw.append(pyglet.sprite.Sprite(images[6], screen_x * cube_size, screen_y * cube_size, batch=batch))
-                #pyglet.image.load("./assets/images/dirt.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
-            if type(blok) == emeraldore:
-                todraw.append(pyglet.sprite.Sprite(images[8], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            if type(blok) == diamondore:
-                todraw.append(pyglet.sprite.Sprite(images[7], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            if type(blok) == rubyore:
-                todraw.append(pyglet.sprite.Sprite(images[9], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            if type(blok) == goldore:
-                todraw.append(pyglet.sprite.Sprite(images[10], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            if type(blok) == coal:
-                todraw.append(pyglet.sprite.Sprite(images[11], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            if type(blok) == cabbage:
+                bloktype=1
+            elif type(blok) == flower:
+                bloktype=6
+            elif type(blok) == emeraldore:
+                bloktype=8
+            elif type(blok) == diamondore:
+                bloktype=7
+            elif type(blok) == rubyore:
+                bloktype=9
+            elif type(blok) == goldore:
+                bloktype=10
+            elif type(blok) == coal:
+                bloktype=11
+            elif type(blok) == cabbage:
                 todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            if type(blok)==sheep:
-                todraw.append(pyglet.sprite.Sprite(images[14], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            if type(blok)==sheepegg:
-                todraw.append(pyglet.sprite.Sprite(images[15], screen_x * cube_size, screen_y * cube_size, batch=batch))
+            elif type(blok)==sheep:
+                bloktype=14
+            elif type(blok)==sheepegg:
+                bloktype=15
+            for k, v in drawdict.items():
+                coord = (level1.player.x - 15 + k[0], level1.player.y - 5 + k[1])
+                if coord[0] == blok.x and coord[1] == blok.y and v == "y":
+                    try:
+                        images[bloktype].blit(screen_x * cube_size, screen_y * cube_size)
+                    except UnboundLocalError as error: print(str(error)+"Huh, figure out why it errors")
         fps.draw()
-        batch.draw()
         #Draw the player
         pyglet.sprite.Sprite(pyglet.image.load("./assets/images/draftforcharecter.png"),15*cube_size,5*cube_size).draw()
-        fps.draw()
-
     if inventoryshown:
         y=0
         for (classname,x) in zip_longest(classlist,range(int(game_window.width/cube_size))):
