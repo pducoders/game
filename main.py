@@ -1,5 +1,3 @@
-from itertools import zip_longest
-from time import sleep
 import time
 import pyglet
 from pyglet.window import key
@@ -8,6 +6,8 @@ from random import randint as random
 from collections import Counter
 from urllib.request import urlretrieve
 import os.path
+level1exists=False
+cube_size = 32
 # nothing other than import above here
 game_start_time=time.time()
 # summons window
@@ -35,6 +35,17 @@ dependencies=[
 for file in dependencies:
     if not os.path.exists(file[1]):
         urlretrieve("https://drive.google.com/uc?export=download&id="+file[2],file[1])
+def btos(sheepx, sheepy):
+    if not level1exists:
+        screenx = (sheepx - 5 + 15) * cube_size
+        screeny = (sheepy - 2 + 5) * cube_size
+    else:
+        screenx=(sheepx-level1.player.x +15)*cube_size
+        screeny=(sheepy-level1.player.y+5)*cube_size
+    return screenx, screeny
+images = []
+for image in dependencies:
+    images.append(pyglet.image.load(image[1]))
 # your player
 class Player:
     def __init__(self):
@@ -42,7 +53,7 @@ class Player:
         self.y = 2
         self.shape = "cube"
         self.gravity = "down"
-        self.prev_x = 4
+        self.prev_x = 5
         self.prev_y = 2
 
     # jump
@@ -187,8 +198,13 @@ class cabbage:
         self.y=y
 class sheep:
     def __init__(self,x,y):
-        self.x=x
-        self.y=y
+        self.x = x
+        self.y = y
+        x,y=btos(x,y)
+        self.sprite = pyglet.sprite.Sprite(
+            images[14],
+            x, y,
+        )
 class sheepegg:
     def __init__(self,x,y):
         self.x=x
@@ -197,6 +213,8 @@ class sheepmilk:
     def __init__(self,x,y):
         self.x=x
         self.y=y
+
+
 blocksdict = dict()
 inventory = Counter()
 blok_in_hand=topsoil
@@ -204,21 +222,17 @@ sheeps=[sheep(1,1)]
 for x,y in itertools.product(range(-1000,1000),range(-1,5)):
     if random(1,200)==1:
         sheeps.append(sheep(x,y))
-deepbricks = [topsoil(16, 2), topsoil(0, -1), topsoil(1, 0), topsoil(2, 0), topsoil(3, 0), topsoil(9, 0), topsoil(6, 0), topsoil(7, 0),
-              topsoil(8, 0), topsoil(9, 0), topsoil(10, 0), topsoil(11, 0), topsoil(12, 0), topsoil(13, 0),
-              topsoil(4, 0), topsoil(14, 0), topsoil(8, 0), topsoil(14, 6), topsoil(18, 0), topsoil(18, 3),
-              topsoil(21, 2), topsoil(58, 13), topsoil(60, 13), topsoil(96, 0), topsoil(36, 2)]
 # blocks cooridinates &rename make sprite
 blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12), water(79, 8), water(95, 0), water(70, -2)]
 ores=[diamondore,emeraldore,rubyore,coal,goldore]
-#referance for newclass.py[stays after lists] DO NOT EDIT OR DELETE(2)
 # bricks
 classlist=[topsoil,water,dirt,stone,trunk,flower,leaf,diamondore,emeraldore,rubyore,coal,goldore,sheepegg]
-brickslist = [deepbricks, blocks,sheeps]
+brickslist = [blocks]
 for bricktype in brickslist:
     for brick in bricktype:
         blocksdict[(brick.x, brick.y)] = brick
 ashleep=False
+
 # makes deep ground
 def makeblocks():
     for x,y in itertools.product(range(-1000, 1000), range(-30, -2)):
@@ -253,8 +267,7 @@ def round_to_cube_size(number):
     return cube_size*round(number/cube_size)
 game_length=0
 class level():
-    def __init__(self, deepbricks, end, player, blocks, cat, creatures, dict):
-        self.deepbricks = deepbricks
+    def __init__(self, end, player, blocks, cat, creatures, dict):
         self.end = end
         self.player = player
         self.exploFrame = 0
@@ -280,30 +293,17 @@ class level():
             if self.creatureOnFloor(creature) == False:
                 creature.fall()
     def movesheep(self,_):
-        def deletesheep(coords):
-            if type(blocksdict[coords])==sheep:
-                del blocksdict[coords]
         sheeplist=[]
-        for coords,blok in blocksdict.items():
-            if type(blok)==sheep:
-                sheeplist.append(coords)
-        for coords in sheeplist:
-            sheepexists=True
-            try:
-                blocksdict[coords]
-            except KeyError:sheepexists=False
-            if not sheepexists:continue
+        for creature in self.creatures:
+            if type(creature)==sheep:
+                sheeplist.append(creature)
+        for this_sheep in sheeplist:
             if random(1,20)==1:
-                deletesheep(coords)
-                blocksdict[(coords[0], coords[1] + 3)] = sheep(coords[0], coords[1] + 3)
-                continue
-            if not self.creatureOnFloor(coords):
-                deletesheep(coords)
-                blocksdict[(coords[0], coords[1]-1)] = sheep(coords[0], coords[1]-1)
+                this_sheep.y+=3
                 continue
             distance = random(-2, 2)
-            deletesheep(coords)
-            blocksdict[(coords[0] - distance, coords[1])] = sheep(coords[0] - distance, coords[1])
+            this_sheep.x += distance
+            this_sheep.sprite=pyglet.sprite.Sprite(images[14],this_sheep.x,this_sheep.y)
     def movecat(self, _):
         if self.cat.x < self.player.x - 3:
             self.cat.x += 1
@@ -357,16 +357,15 @@ class level():
         return False
 # summons level
 level1 = level(
-    deepbricks=deepbricks,
     end=endPoint(140, (200, 150, 5)),
     player=Player(),
     blocks=blocks,
     cat=cat(),
-    creatures=[cat(), Player()],
+    creatures=[cat(), Player(),sheeps],
     dict=blocksdict,
 )
+level1exists=True
 # size of everything do not chnage
-cube_size = 32
 batch=pyglet.graphics.Batch()
 inventoryshown=False
 fps=pyglet.window.FPSDisplay(window=game_window)
@@ -405,6 +404,7 @@ shleep_morning=False
 drawdict=dict()
 for x,y in itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size)):
     drawdict[x,y]="y"
+
 def update():
     global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies
     if night.color[3]>100:
@@ -414,15 +414,11 @@ def update():
     if game_length>10:cabbagegrowth=13
     sun.blit(sun_x,sun_y)
     camera = 0
-    images=[]
     sun_rise()
     if ashleep:
         night.color = (0, 0, 0, int(shleep_length *12))
     else:
         night.color=(0,0,0,int(game_length/2))
-    def loadimages():
-        for image in dependencies:
-            images.append(pyglet.image.load(image[1]))
     todraw=[]
     if len(fps.label.text)==4:
         if float(fps.label.text)<game_speed:
@@ -430,8 +426,14 @@ def update():
         if float(fps.label.text)>game_speed and speed>0.1:
             speed-=1
 
-    loadimages()
     if not inventoryshown:
+        #sheepslist=[]
+        #for creature in level1.creatures:
+         #   print(type(creature))
+          #  if type(creature)==sheep:
+           #     sheepslist.append(creature)
+        #for drawsheep in sheepslist:
+         #   drawsheep.sprite.draw()
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
@@ -439,6 +441,7 @@ def update():
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
+            bloktype = -1
             if type(blok) == topsoil:
                 bloktype=0
             elif type(blok) == leaf:
@@ -466,23 +469,22 @@ def update():
             elif type(blok) == coal:
                 bloktype=11
             elif type(blok) == cabbage:
-                todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
+                bloktype=13#todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
             elif type(blok)==sheep:
                 bloktype=14
             elif type(blok)==sheepegg:
                 bloktype=15
-            for k, v in drawdict.items():
-                coord = (level1.player.x - 15 + k[0], level1.player.y - 5 + k[1])
-                if coord[0] == blok.x and coord[1] == blok.y and v == "y":
-                    try:
-                        images[bloktype].blit(screen_x * cube_size, screen_y * cube_size)
-                    except UnboundLocalError as error: print(str(error)+"Huh, figure out why it errors")
+            if bloktype!= -1:
+                images[bloktype].blit(screen_x * cube_size, screen_y * cube_size)
         fps.draw()
+        for critter in level1.creatures:
+            if type(critter)==sheep:
+                critter.sprite.draw()
         #Draw the player
         pyglet.sprite.Sprite(pyglet.image.load("./assets/images/draftforcharecter.png"),15*cube_size,5*cube_size).draw()
     if inventoryshown:
         y=0
-        for (classname,x) in zip_longest(classlist,range(int(game_window.width/cube_size))):
+        for (classname,x) in itertools.zip_longest(classlist,range(int(game_window.width/cube_size))):
             if classname is not None:
                 pyglet.image.load("./assets/images/"+str(classname.__name__)+".png").blit(x * cube_size, y * cube_size)
                 pyglet.text.Label(str(inventory[classname.__name__]),x=x*cube_size,y=y*cube_size).draw()
@@ -541,13 +543,13 @@ def on_key_press(space, _):
     if key=="Z":level1.go_to_shleep(1,1)
 def leftrightmarker(_):
     if keys[key.LEFT]:
-        sleep(speed / 6)
+        #sleep(speed / 6)
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x -= 1
         level1.anti_collide(_)
     if keys[key.RIGHT]:
-        sleep(speed / 6)
+        #sleep(speed / 6)
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
@@ -585,5 +587,5 @@ pyglet.clock.schedule_interval(leftrightmarker, 0.1)
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
 pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.movecat, 0.5)
-pyglet.clock.schedule_interval(level1.movesheep, 0.5)
+#pyglet.clock.schedule_interval(level1.movesheep, 0.5)
 pyglet.app.run()
