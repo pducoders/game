@@ -225,6 +225,7 @@ for x,y in itertools.product(range(-1000,1000),range(-1,5)):
 # blocks cooridinates &rename make sprite
 blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12), water(79, 8), water(95, 0), water(70, -2)]
 ores=[diamondore,emeraldore,rubyore,coal,goldore]
+coins=0
 # bricks
 classlist=[topsoil,water,dirt,stone,trunk,flower,leaf,diamondore,emeraldore,rubyore,coal,goldore,sheepegg]
 brickslist = [blocks]
@@ -232,7 +233,21 @@ for bricktype in brickslist:
     for brick in bricktype:
         blocksdict[(brick.x, brick.y)] = brick
 ashleep=False
-
+costs={
+    water:1,
+    topsoil:1,
+    dirt:1,
+    stone:1,
+    trunk:1,
+    flower:1,
+    leaf:1,
+    diamondore:5,
+    emeraldore:4,
+    rubyore:4,
+    coal:3,
+    goldore:3,
+    sheepegg:4
+}
 # makes deep ground
 def makeblocks():
     for x,y in itertools.product(range(-1000, 1000), range(-30, -2)):
@@ -266,6 +281,25 @@ makeblocks()
 def round_to_cube_size(number):
     return cube_size*round(number/cube_size)
 game_length=0
+def mine(mine_mouse_x, mine_mouse_y):
+    try:
+        print(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
+        if type(blocksdict[mine_mouse_x, mine_mouse_y]) == sheep:
+            level1.add_to_inventory("sheepegg")
+        level1.add_to_inventory(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
+        blocksdict.pop((mine_mouse_x, mine_mouse_y))
+    except KeyError:
+        pass
+def place(place_mouse_x, place_mouse_y):
+    try:
+        blocksdict[place_mouse_x, place_mouse_y]
+    except:
+        if inventory[str(blok_in_hand.__name__)] > 0:
+            blocksdict[place_mouse_x, place_mouse_y] = blok_in_hand(place_mouse_x, place_mouse_y)
+            inventory[str(blok_in_hand.__name__)] -= 1
+    else:
+        if type(blocksdict[place_mouse_x, place_mouse_y]) == sheep:
+            level1.go_to_shleep(place_mouse_x, place_mouse_y)
 class level():
     def __init__(self, end, player, blocks, cat, creatures, dict):
         self.end = end
@@ -503,13 +537,19 @@ def update():
             shleep_length=int(time.time())-int(game_start_time)
     game_length=int(time.time())-int(game_start_time)
 def on_key_press(space, _):
-    global inventoryshown,blok_in_hand_y,blok_in_hand_x
+    global inventoryshown,blok_in_hand_y,blok_in_hand_x,coins,costs,inventory
     key = pyglet.window.key.symbol_string(space)
     level1.player.prev_x = level1.player.x
     level1.player.prev_y = level1.player.y
     if inventoryshown:
         if key=="RIGHT": blok_in_hand_x += 1
         if key=="LEFT": blok_in_hand_x -= 1
+        if key=="S":coins+=costs[blok_in_hand]
+        print(coins,inventory[blok_in_hand])
+        if key=="B":
+            if coins-costs[blok_in_hand]>0:
+                coins-=costs[blok_in_hand]
+                inventory[blok_in_hand]+=1
     if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
@@ -537,10 +577,13 @@ def on_key_press(space, _):
         print(level1.player.x)
         print(level1.player.y)
     if key =="G":
-        inventoryshown=True
-    if key =="F":
-        inventoryshown = False
-    if key=="Z":level1.go_to_shleep(1,1)
+        if inventoryshown:
+            inventoryshown=False
+        else:
+            inventoryshown=True
+    if key=="Z":
+        mine(level1.player.x + 1, level1.player.y+1)
+        mine(level1.player.x+1,level1.player.y)
 def leftrightmarker(_):
     if keys[key.LEFT]:
         #sleep(speed / 6)
@@ -563,23 +606,9 @@ def on_mouse_press(x,y,button,modifiers):
     adjusted_mouse_x = int(mouse.x / 32) - 15 + level1.player.x
     adjusted_mouse_y = int(mouse.y / 32) - 5 + level1.player.y
     if button == 1:
-        try:blocksdict[adjusted_mouse_x, adjusted_mouse_y]
-        except:
-            if inventory[str(blok_in_hand.__name__)] > 0:
-                blocksdict[adjusted_mouse_x, adjusted_mouse_y] = blok_in_hand(adjusted_mouse_x, adjusted_mouse_y)
-                inventory[str(blok_in_hand.__name__)] -= 1
-        else:
-            if type(blocksdict[adjusted_mouse_x, adjusted_mouse_y])==sheep:
-                level1.go_to_shleep(adjusted_mouse_x, adjusted_mouse_y)
+        place(adjusted_mouse_x, adjusted_mouse_y)
     if button == 4:
-        try:
-            print(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
-            if type(blocksdict[adjusted_mouse_x, adjusted_mouse_y])==sheep:
-                level1.add_to_inventory("sheepegg")
-            level1.add_to_inventory(type(blocksdict[adjusted_mouse_x, adjusted_mouse_y]).__name__)
-            del blocksdict[adjusted_mouse_x, adjusted_mouse_y]
-        except KeyError:
-            pass
+        mine(adjusted_mouse_x, adjusted_mouse_y)
 # run it nothing below here expect for run
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
