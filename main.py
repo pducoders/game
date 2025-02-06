@@ -406,7 +406,8 @@ fps=pyglet.window.FPSDisplay(window=game_window)
 speed=1
 game_speed=3
 try:
-    background=pyglet.image.load("./assets/images/night-test.png")
+    background=pyglet.sprite.Sprite(pyglet.image.load("./assets/images/night-test.png"),0,0)
+    background.scale=6
 except:
     urlretrieve("https://drive.google.com/uc?export=download&id=1KvmPuDHo26Fqx1uk6FqabqjX7FBqyA7z", "./assets/images/night-test.png")
     print("downloaded night please restart program")
@@ -415,10 +416,8 @@ night=pyglet.shapes.Rectangle(0,0,1200,900,(0,0,0,0))
 sun=pyglet.image.load("./assets/images/bookshelf.png")
 sun_x=0
 sun_y=0
-background.width=game_window.width
-background.height=game_window.height
-game_window.set_mouse_visible(False)
-mouse=pyglet.shapes.Rectangle(0,0,cube_size,cube_size,(255,255,255,100))
+game_window.set_mouse_cursor(game_window.get_system_mouse_cursor(game_window.CURSOR_CROSSHAIR))
+#mouse=pyglet.shapes.Rectangle(0,0,cube_size,cube_size,(255,255,255,100))
 blok_in_hand_x = 0
 blok_in_hand_y = 0
 sun_falling = False
@@ -441,8 +440,16 @@ for x,y in itertools.product(range(game_window.width // cube_size), range(game_w
 
 def update():
     global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies
+    fps.label.opacity=255
+    if fps.label.text=='':fps.label.text="1000"
+    if float(fps.label.text)>5:
+        fps.label.color=(39,105,3)
+    elif float(fps.label.text)>3:
+        fps.label.color=(245,228,33)
+    else:
+        fps.label.color=(105,27,3)
     if night.color[3]>100:
-        background.blit(0,0)
+        background.draw()
     else:
         game_window.clear()
     if game_length>10:cabbagegrowth=13
@@ -452,7 +459,7 @@ def update():
     if ashleep:
         night.color = (0, 0, 0, int(shleep_length *12))
     else:
-        night.color=(0,0,0,int(game_length/2))
+        night.color=(0,0,0,int(game_length))
     todraw=[]
     if len(fps.label.text)==4:
         if float(fps.label.text)<game_speed:
@@ -525,7 +532,6 @@ def update():
             if x>30:y+=1
             if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= classname
         pyglet.shapes.Rectangle(blok_in_hand_x*cube_size,blok_in_hand_y*cube_size,cube_size,cube_size,(0,100,255,200)).draw()
-    mouse.draw()
     night.draw()
     if ashleep:
         if shleep_length<240/12 and shleep_morning==False:
@@ -598,13 +604,9 @@ def leftrightmarker(_):
         level1.player.x += 1
         level1.anti_collide(_)
 @game_window.event
-def on_mouse_motion(x,y,dx,dy):
-    global mouse
-    mouse = pyglet.shapes.Rectangle(round_to_cube_size(x), round_to_cube_size(y), cube_size, cube_size, (255, 255, 255, 100))
-@game_window.event
 def on_mouse_press(x,y,button,modifiers):
-    adjusted_mouse_x = int(mouse.x / 32) - 15 + level1.player.x
-    adjusted_mouse_y = int(mouse.y / 32) - 5 + level1.player.y
+    adjusted_mouse_x = int(x / 32) - 15 + level1.player.x
+    adjusted_mouse_y = int(y / 32) - 5 + level1.player.y
     if button == 1:
         place(adjusted_mouse_x, adjusted_mouse_y)
     if button == 4:
