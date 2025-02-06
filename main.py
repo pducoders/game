@@ -248,7 +248,13 @@ costs={
     goldore:3,
     sheepegg:4
 }
-# makes deep ground
+def export_inventory():
+    file=open("./save.inventory","x")
+    file.write(f"{inventory}")
+def import_inventory():
+    global inventory
+    file =open("./save.inventory","r")
+    inventory=eval(file.read())
 def makeblocks():
     for x,y in itertools.product(range(-1000, 1000), range(-30, -2)):
         if y > -10:
@@ -550,12 +556,8 @@ def on_key_press(space, _):
     if inventoryshown:
         if key=="RIGHT": blok_in_hand_x += 1
         if key=="LEFT": blok_in_hand_x -= 1
-        if key=="S":coins+=costs[blok_in_hand]
-        print(coins,inventory[blok_in_hand])
-        if key=="B":
-            if coins-costs[blok_in_hand]>0:
-                coins-=costs[blok_in_hand]
-                inventory[blok_in_hand]+=1
+        if key=="S":export_inventory()
+        if key=="I":import_inventory()
     if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
