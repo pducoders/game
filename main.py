@@ -249,12 +249,18 @@ costs={
     sheepegg:4
 }
 def export_inventory():
-    file=open("./save.inventory","x")
+    file=open("./save.inventory","w")
     file.write(f"{inventory}")
 def import_inventory():
     global inventory
     file =open("./save.inventory","r")
-    inventory=eval(file.read())
+    read=file.read()
+    for blok in classlist:
+        if "<class '__main__."+blok.__name__ in read:
+            read.split("<class")
+    if "Counter" not in read:
+        return
+    inventory=eval(read)
 def makeblocks():
     for x,y in itertools.product(range(-1000, 1000), range(-30, -2)):
         if y > -10:
@@ -292,7 +298,7 @@ def mine(mine_mouse_x, mine_mouse_y):
         print(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
         if type(blocksdict[mine_mouse_x, mine_mouse_y]) == sheep:
             level1.add_to_inventory("sheepegg")
-        level1.add_to_inventory(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
+        inventory[type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__]+=1
         blocksdict.pop((mine_mouse_x, mine_mouse_y))
     except KeyError:
         pass
@@ -352,6 +358,7 @@ class level():
         self.cat.prev_x=self.cat.x
         self.cat.prev_y=self.cat.y
     def mine(self, direction):
+        return
         try:
             if direction == "down":
                 del blocksdict[self.player.x, self.player.y - 1]
@@ -367,13 +374,14 @@ class level():
         except KeyError:
             pass
     def add_to_inventory(self, blok):
-        inventory[blok]+=1
+        inventory[str(type(blok).__name__)]+=1
     def go_to_shleep(self, sheep_x, sheep_y):
         self.player.x=sheep_x
         self.player.y=sheep_y
         global ashleep
         ashleep=True
     def place(self, direction):
+        return
         if inventory[topsoil] > 0:
             if direction == "down":
                 blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
