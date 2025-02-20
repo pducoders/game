@@ -6,6 +6,7 @@ from random import randint as random
 from collections import Counter
 from urllib.request import urlretrieve
 import os.path
+import pickle
 level1exists=False
 cube_size = 32
 # nothing other than import above here
@@ -248,17 +249,20 @@ costs={
     goldore:3,
     sheepegg:4
 }
-def export_inventory():
-    file=open("./save.inventory","w")
-    file.write(f"{inventory}")
-def import_inventory():
+def export_world():
+    file=open("./game.pickle","wb")
+    pickle.dump(blocksdict,file)
+    inventoryfile = open("./save.inventory", "w")
+    inventoryfile.write(f"{inventory}")
+def import_world():
+    global blocksdict
+    file=open("./game.pickle","rb")
+    blocksdict=pickle.load(file)
     global inventory
-    file =open("./save.inventory","r")
-    read=file.read()
-    for blok in classlist:
-        if "<class '__main__."+blok.__name__ in read:
-            read.split("<class")
+    inventoryfile =open("./save.inventory","r")
+    read=inventoryfile.read()
     if "Counter" not in read:
+        print("Invalid inventory file")
         return
     inventory=eval(read)
 def makeblocks():
@@ -288,7 +292,6 @@ def makeblocks():
             if (x,-1) not in blocksdict:
                 blocksdict[x,-1]=flower(x,-1)
 blocksdict[(-1, -1)] = cabbage(-1, -1)
-#referance for newclass.py[stays between layer making functions and their calls] DO NOT EDIT OR DELETE(1)
 makeblocks()
 def round_to_cube_size(number):
     return cube_size*round(number/cube_size)
@@ -421,7 +424,7 @@ speed=1
 game_speed=3
 try:
     background=pyglet.sprite.Sprite(pyglet.image.load("./assets/images/night-test.png"),0,0)
-    background.scale=6
+    background.scale=3
 except:
     urlretrieve("https://drive.google.com/uc?export=download&id=1KvmPuDHo26Fqx1uk6FqabqjX7FBqyA7z", "./assets/images/night-test.png")
     print("downloaded night please restart program")
@@ -564,8 +567,8 @@ def on_key_press(space, _):
     if inventoryshown:
         if key=="RIGHT": blok_in_hand_x += 1
         if key=="LEFT": blok_in_hand_x -= 1
-        if key=="S":export_inventory()
-        if key=="I":import_inventory()
+        if key=="TAB":export_world()
+        if key=="BACKSPACE":import_world()
     if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
