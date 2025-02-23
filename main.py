@@ -54,6 +54,8 @@ class Player:
         self.y = 2
         self.shape = "cube"
         self.gravity = "down"
+        self.mine_speed=5
+        self.blok_being_mined=(0,0)
         self.prev_x = 5
         self.prev_y = 2
 
@@ -206,6 +208,9 @@ class sheep:
             images[14],
             x, y,
         )
+    def fall(self):
+        self.sprite.x, self.sprite.y=btos(self.x, self.y)
+        self.y=self.y-1
 class sheepegg:
     def __init__(self,x,y):
         self.x=x
@@ -221,7 +226,7 @@ inventory = Counter()
 blok_in_hand=topsoil
 sheeps=[sheep(1,1)]
 for x,y in itertools.product(range(-1000,1000),range(-1,5)):
-    if random(1,200)==1:
+    if random(1,700)==1:
         sheeps.append(sheep(x,y))
 # blocks cooridinates &rename make sprite
 blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12), water(79, 8), water(95, 0), water(70, -2)]
@@ -234,21 +239,7 @@ for bricktype in brickslist:
     for brick in bricktype:
         blocksdict[(brick.x, brick.y)] = brick
 ashleep=False
-costs={
-    water:1,
-    topsoil:1,
-    dirt:1,
-    stone:1,
-    trunk:1,
-    flower:1,
-    leaf:1,
-    diamondore:5,
-    emeraldore:4,
-    rubyore:4,
-    coal:3,
-    goldore:3,
-    sheepegg:4
-}
+
 def export_world():
     file=open("./game.pickle","wb")
     pickle.dump(blocksdict,file)
@@ -297,14 +288,22 @@ def round_to_cube_size(number):
     return cube_size*round(number/cube_size)
 game_length=0
 def mine(mine_mouse_x, mine_mouse_y):
-    try:
-        print(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
-        if type(blocksdict[mine_mouse_x, mine_mouse_y]) == sheep:
-            level1.add_to_inventory("sheepegg")
-        inventory[type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__]+=1
-        blocksdict.pop((mine_mouse_x, mine_mouse_y))
-    except KeyError:
-        pass
+    if level1.mine_frame>=level1.player.mine_speed:
+        mine_mouse_x,mine_mouse_y=level1.player.blok_being_mined
+        try:
+            print(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
+            if type(blocksdict[mine_mouse_x, mine_mouse_y]) == sheep:
+                level1.add_to_inventory("sheepegg")
+            inventory[type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__] += 1
+            blocksdict.pop((mine_mouse_x, mine_mouse_y))
+        except KeyError:
+            pass
+        level1.mine_frame=0
+        level1.player.blok_being_mined=None
+    else:
+        if level1.mine_frame==0:
+            level1.player.blok_being_mined=(mine_mouse_x,mine_mouse_y)
+        level1.mine_frame+=1
 def place(place_mouse_x, place_mouse_y):
     try:
         blocksdict[place_mouse_x, place_mouse_y]
@@ -319,21 +318,17 @@ class level():
     def __init__(self, end, player, blocks, cat, creatures, dict):
         self.end = end
         self.player = player
-        self.exploFrame = 0
+        self.mine_frame = 0
         self.blocks = blocks
         self.cat = cat
-        self.creatures = [self.cat, self.player]
+        self.creatures = [self.cat, self.player] + creatures
         self.dict = blocksdict
 
     # dont walk into blocks
     def anti_collide(self, _):
         for creature in level1.creatures:
-            for coords, blok in blocksdict.items():
-                if type(creature)==Player and creature.x == blok.x  and (creature.y == blok.y or creature.y+1==blok.y):
-                    creature.anti_collide()
-                if creature.x == blok.x and creature.y == blok.y:
-                    creature.anti_collide()
-                if creature.x+1 == blok.x and creature.y == blok.y and type(creature)==cat:
+            if (creature.x, creature.y) in blocksdict:
+                if type(creature)==Player or type(creature)==cat:
                     creature.anti_collide()
 
     # moving stuff
@@ -352,7 +347,6 @@ class level():
                 continue
             distance = random(-2, 2)
             this_sheep.x += distance
-            this_sheep.sprite=pyglet.sprite.Sprite(images[14],this_sheep.x,this_sheep.y)
     def movecat(self, _):
         if self.cat.x < self.player.x - 3:
             self.cat.x += 1
@@ -361,7 +355,6 @@ class level():
         self.cat.prev_x=self.cat.x
         self.cat.prev_y=self.cat.y
     def mine(self, direction):
-        return
         try:
             if direction == "down":
                 del blocksdict[self.player.x, self.player.y - 1]
@@ -377,14 +370,13 @@ class level():
         except KeyError:
             pass
     def add_to_inventory(self, blok):
-        inventory[str(type(blok).__name__)]+=1
+        inventory[blok]+=1
     def go_to_shleep(self, sheep_x, sheep_y):
         self.player.x=sheep_x
         self.player.y=sheep_y
         global ashleep
         ashleep=True
     def place(self, direction):
-        return
         if inventory[topsoil] > 0:
             if direction == "down":
                 blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
@@ -398,12 +390,10 @@ class level():
     # stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
         if type(creature)==tuple:
-            for coords,blok in blocksdict.items():
-                if creature[1]==blok.y+1 and creature[0]==blok.x:
-                    return True
+            if (creature[0], creature[1]-1) in blocksdict:
+                return True
         else:
-            for coords, blok in blocksdict.items():
-                if creature.y == blok.y + 1 and creature.x == blok.x:
+            if (creature.x, creature.y-1) in blocksdict:
                     return True
         return False
 # summons level
@@ -412,7 +402,7 @@ level1 = level(
     player=Player(),
     blocks=blocks,
     cat=cat(),
-    creatures=[cat(), Player(),sheeps],
+    creatures=[cat(), Player()] + sheeps,
     dict=blocksdict,
 )
 level1exists=True
@@ -440,24 +430,33 @@ blok_in_hand_y = 0
 sun_falling = False
 shleep_length=0
 def sun_rise():
-    global sun_x,sun_y,sun_falling
-    if sun_y>8:
+    global sun_x, sun_y, sun_falling
+    if sun_y > 8:
         sun_falling=True
     if sun_falling:
-        sun_y-=1
+        sun_y -= 1
     else:
-        sun_y+=1
-    sun_x+=1
+        sun_y += 1
+    sun_x += 1
 cabbagegrowth=12
 cats=[]
 shleep_morning=False
 drawdict=dict()
 for x,y in itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size)):
     drawdict[x,y]="y"
-
+mine_animation=pyglet.shapes.Rectangle(0,0,32,32,(255,255,255,0))
 def update():
     global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies
     fps.label.opacity=255
+    if level1.mine_frame>0:
+        x,y=level1.player.blok_being_mined
+        mine(x,y)
+        if level1.mine_frame>1:
+            mine_animation.x,mine_animation.y=level1.player.blok_being_mined
+            mine_animation.x*=cube_size
+            mine_animation.y*=cube_size
+        mine_animation.color=(255,255,255,level1.mine_frame*6)
+        mine_animation.draw()
     if fps.label.text=='':fps.label.text="1000"
     if float(fps.label.text)>5:
         fps.label.color=(39,105,3)
@@ -482,20 +481,19 @@ def update():
         if float(fps.label.text)<game_speed:
             speed+=1
         if float(fps.label.text)>game_speed and speed>0.1:
-            speed-=1
+            speed -= 1
 
     if not inventoryshown:
-        #sheepslist=[]
-        #for creature in level1.creatures:
-         #   print(type(creature))
-          #  if type(creature)==sheep:
-           #     sheepslist.append(creature)
-        #for drawsheep in sheepslist:
-         #   drawsheep.sprite.draw()
+        for drawsheep in sheeps:
+            if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
+                #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
+                screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
+                images[14].blit(screen_x, screen_y)
+
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
-                pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                pyglet.image.load("./assets/images/kitty2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
@@ -535,9 +533,7 @@ def update():
             if bloktype!= -1:
                 images[bloktype].blit(screen_x * cube_size, screen_y * cube_size)
         fps.draw()
-        for critter in level1.creatures:
-            if type(critter)==sheep:
-                critter.sprite.draw()
+
         #Draw the player
         pyglet.sprite.Sprite(pyglet.image.load("./assets/images/draftforcharecter.png"),15*cube_size,5*cube_size).draw()
     if inventoryshown:
@@ -569,10 +565,10 @@ def on_key_press(space, _):
         if key=="LEFT": blok_in_hand_x -= 1
         if key=="TAB":export_world()
         if key=="BACKSPACE":import_world()
+
     if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
-
     if key == "DOWN":
         if level1.creatureOnFloor(level1.player) == False:
             level1.player.fall()
@@ -631,5 +627,5 @@ pyglet.clock.schedule_interval(leftrightmarker, 0.1)
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
 pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.movecat, 0.5)
-#pyglet.clock.schedule_interval(level1.movesheep, 0.5)
+pyglet.clock.schedule_interval(level1.movesheep, 0.5)
 pyglet.app.run()
