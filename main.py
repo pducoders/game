@@ -225,9 +225,9 @@ blocksdict = dict()
 inventory = Counter()
 blok_in_hand=topsoil
 sheeps=[sheep(1,1)]
-for x,y in itertools.product(range(-1000,1000),range(-1,5)):
+for sheepx,sheepy in itertools.product(range(-1000,1000),range(-1,5)):
     if random(1,700)==1:
-        sheeps.append(sheep(x,y))
+        sheeps.append(sheep(sheepx,sheepy))
 # blocks cooridinates &rename make sprite
 blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12), water(79, 8), water(95, 0), water(70, -2)]
 ores=[diamondore,emeraldore,rubyore,coal,goldore]
@@ -292,8 +292,6 @@ def mine(mine_mouse_x, mine_mouse_y):
         mine_mouse_x,mine_mouse_y=level1.player.blok_being_mined
         try:
             print(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
-            if type(blocksdict[mine_mouse_x, mine_mouse_y]) == sheep:
-                level1.add_to_inventory("sheepegg")
             inventory[type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__] += 1
             blocksdict.pop((mine_mouse_x, mine_mouse_y))
         except KeyError:
@@ -309,7 +307,10 @@ def place(place_mouse_x, place_mouse_y):
         blocksdict[place_mouse_x, place_mouse_y]
     except:
         if inventory[str(blok_in_hand.__name__)] > 0:
-            blocksdict[place_mouse_x, place_mouse_y] = blok_in_hand(place_mouse_x, place_mouse_y)
+            if blok_in_hand==sheepegg:
+                level1.creatures.append(sheep(place_mouse_x,place_mouse_y))
+            else:
+                blocksdict[place_mouse_x, place_mouse_y] = blok_in_hand(place_mouse_x, place_mouse_y)
             inventory[str(blok_in_hand.__name__)] -= 1
     else:
         if type(blocksdict[place_mouse_x, place_mouse_y]) == sheep:
@@ -345,6 +346,8 @@ class level():
             if random(1,20)==1:
                 this_sheep.y+=3
                 continue
+            if random(1,200)==1:
+                blocksdict[this_sheep.x+1,this_sheep.y]=sheepegg(this_sheep.x+1,this_sheep.y)
             distance = random(-2, 2)
             this_sheep.x += distance
     def movecat(self, _):
@@ -484,7 +487,11 @@ def update():
             speed -= 1
 
     if not inventoryshown:
-        for drawsheep in sheeps:
+        drawsheeps=[]
+        for drawsheep in level1.creatures:
+            if type(drawsheep)==sheep:
+                drawsheeps.append(drawsheep)
+        for drawsheep in drawsheeps:
             if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
                 #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
                 screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
