@@ -126,79 +126,6 @@ class cat:
         self.y = self.prev_y
 
 
-# topsoil &rename
-class topsoil:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
-# bricks useful &change to sprite
-class water:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-class leaf:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
-
-class trunk:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
-# &remove
-class endPoint:
-    def __init__(self, x, color):
-        self.x = x
-        self.color = color
-
-class lava:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.color = (255, 75, 0)
-class stone:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-class dirt:
-    def __init__(self,x,y):
-        self.x=x
-        self.y=y
-class flower:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-class diamondore:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-class emeraldore:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-class rubyore:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-class goldore:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-class coal:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-class cabbage:
-    def __init__(self,x,y):
-        self.x= x
-        self.y=y
 class sheep:
     def __init__(self,x,y):
         self.x = x
@@ -211,30 +138,25 @@ class sheep:
     def fall(self):
         self.sprite.x, self.sprite.y=btos(self.x, self.y)
         self.y=self.y-1
-class sheepegg:
-    def __init__(self,x,y):
+class block:
+    def __init__(self,x,y,name):
         self.x=x
         self.y=y
-class sheepmilk:
-    def __init__(self,x,y):
-        self.x=x
-        self.y=y
-
-
+        self.name=name
+    def name(self):
+        return self.name
 blocksdict = dict()
 inventory = Counter()
-blok_in_hand=topsoil
+blok_in_hand="topsoil"
 sheeps=[sheep(1,1)]
 for sheepx,sheepy in itertools.product(range(-1000,1000),range(-1,5)):
     if random(1,700)==1:
         sheeps.append(sheep(sheepx,sheepy))
 # blocks cooridinates &rename make sprite
-blocks = [water(5, 0), water(20, 3), water(68, 13), water(71, 13), water(71, 12), water(79, 8), water(95, 0), water(70, -2)]
-ores=[diamondore,emeraldore,rubyore,coal,goldore]
+ores=["diamondore","emeraldore","rubyore","coal","goldore"]
 coins=0
 # bricks
-classlist=[topsoil,water,dirt,stone,trunk,flower,leaf,diamondore,emeraldore,rubyore,coal,goldore,sheepegg]
-brickslist = [blocks]
+brickslist = []
 for bricktype in brickslist:
     for brick in bricktype:
         blocksdict[(brick.x, brick.y)] = brick
@@ -259,30 +181,29 @@ def import_world():
 def makeblocks():
     for x,y in itertools.product(range(-1000, 1000), range(-30, -2)):
         if y > -10:
-            blocksdict[(x,y)] = dirt(x,y)
+            blocksdict[(x,y)] = block(x,y,"dirt")
         if -20 >= y >= -30:
-            blocksdict[(x, y)] = lava(x, y)
+            blocksdict[(x, y)] = block(x, y,"lava")
         if -10>= y >=-20:
             if random(1, 100) == 1:
-                blocksdict[(x, y)] = ores[random(0, len(ores) - 1)](x, y)
+                blocksdict[(x, y)] =block(x, y, ores[random(0, len(ores) - 1)])
             else:
-                blocksdict[(x, y)] = stone(x, y)
+                blocksdict[(x, y)] = block(x, y,"stone")
     for x in range(-1000,1000):
-        blocksdict[(x, -2)] = topsoil(x, -2)
+        blocksdict[(x, -2)] = block(x, -2,"topsoil")
         if x % random(1, 70) == 0:
             if (x,-1)or(x,0) not in blocksdict:
                 tree_height=random(1,10)
                 for tree_y in range(tree_height):
-                    blocksdict[x,tree_y-1]=trunk(x,tree_y-1)
+                    blocksdict[x,tree_y-1]=block(x,tree_y-1,"trunk")
                     if tree_height==tree_y+1:
-                        blocksdict[x-1,tree_y]=leaf(x-1,tree_y)
-                        blocksdict[x , tree_y] = leaf(x - 1, tree_y)
-                        blocksdict[x + 1, tree_y] = leaf(x - 1, tree_y)
-                        blocksdict[x, tree_y+1] = leaf(x, tree_y+1)
+                        blocksdict[x-1,tree_y]=block(x-1,tree_y,"leaf")
+                        blocksdict[x , tree_y] = block(x - 1, tree_y,"leaf")
+                        blocksdict[x + 1, tree_y] = block(x - 1, tree_y,"leaf")
+                        blocksdict[x, tree_y+1] = block(x, tree_y+1,"leaf")
         if x % random(1,50) == 0:
             if (x,-1) not in blocksdict:
-                blocksdict[x,-1]=flower(x,-1)
-blocksdict[(-1, -1)] = cabbage(-1, -1)
+                blocksdict[x,-1]=block(x,-1,"flower")
 makeblocks()
 def round_to_cube_size(number):
     return cube_size*round(number/cube_size)
@@ -307,20 +228,18 @@ def place(place_mouse_x, place_mouse_y):
         blocksdict[place_mouse_x, place_mouse_y]
     except:
         if inventory[str(blok_in_hand.__name__)] > 0:
-            if blok_in_hand==sheepegg:
+            if blok_in_hand=="sheepegg":
                 level1.creatures.append(sheep(place_mouse_x,place_mouse_y))
             else:
-                blocksdict[place_mouse_x, place_mouse_y] = blok_in_hand(place_mouse_x, place_mouse_y)
+                blocksdict[place_mouse_x, place_mouse_y] = block(place_mouse_x, place_mouse_y,blok_in_hand)
             inventory[str(blok_in_hand.__name__)] -= 1
     else:
         if type(blocksdict[place_mouse_x, place_mouse_y]) == sheep:
             level1.go_to_shleep(place_mouse_x, place_mouse_y)
 class level():
-    def __init__(self, end, player, blocks, cat, creatures, dict):
-        self.end = end
+    def __init__(self,  player, cat, creatures, dict):
         self.player = player
         self.mine_frame = 0
-        self.blocks = blocks
         self.cat = cat
         self.creatures = [self.cat, self.player] + creatures
         self.dict = blocksdict
@@ -347,7 +266,7 @@ class level():
                 this_sheep.y+=3
                 continue
             if random(1,200)==1:
-                blocksdict[this_sheep.x+1,this_sheep.y]=sheepegg(this_sheep.x+1,this_sheep.y)
+                blocksdict[this_sheep.x+1,this_sheep.y]=block(this_sheep.x+1,this_sheep.y,"sheepegg")
             distance = random(-2, 2)
             this_sheep.x += distance
     def movecat(self, _):
@@ -361,13 +280,13 @@ class level():
         try:
             if direction == "down":
                 del blocksdict[self.player.x, self.player.y - 1]
-                inventory[topsoil] += 1
+                inventory["topsoil"] += 1
             if direction == "up":
                 del blocksdict[self.player.x, self.player.y + 1]
-                inventory[topsoil] += 1
+                inventory["topsoil"] += 1
             if direction == "right":
                 del blocksdict[self.player.x + 1, self.player.y]
-                inventory[topsoil] += 1
+                inventory["topsoil"] += 1
             if direction == "left":
                 del blocksdict[self.player.x - 1, self.player.y]
         except KeyError:
@@ -380,16 +299,7 @@ class level():
         global ashleep
         ashleep=True
     def place(self, direction):
-        if inventory[topsoil] > 0:
-            if direction == "down":
-                blocksdict[(self.player.x, self.player.y - 1)] = topsoil(self.player.x, self.player.y - 1)
-            if direction == "up":
-                blocksdict[(self.player.x, self.player.y + 1)] = topsoil(self.player.x, self.player.y + 1)
-            if direction == "left":
-                blocksdict[(self.player.x + 1, self.player.y)] = topsoil(self.player.x + 1, self.player.y)
-            if direction == "right":
-                blocksdict[(self.player.x - 1, self.player.y)] = topsoil(self.player.x - 1, self.player.y)
-            inventory[topsoil] -= 1
+        return
     # stay on blocks &condense int one for loop
     def creatureOnFloor(self, creature):
         if type(creature)==tuple:
@@ -401,9 +311,7 @@ class level():
         return False
 # summons level
 level1 = level(
-    end=endPoint(140, (200, 150, 5)),
     player=Player(),
-    blocks=blocks,
     cat=cat(),
     creatures=[cat(), Player()] + sheeps,
     dict=blocksdict,
@@ -505,37 +413,37 @@ def update():
                 blok=blocksdict[blok_cord]
             else:continue
             bloktype = -1
-            if type(blok) == topsoil:
+            if blok.name=="topsoil":
                 bloktype=0
-            elif type(blok) == leaf:
+            elif blok.name == "leaf":
                 bloktype=2
-            elif type(blok) == water:
+            elif blok.name == "water":
                 bloktype=3
-            elif type(blok) == trunk:
+            elif blok.name == "trunk":
                 bloktype=4
-            elif type(blok) == stone:
+            elif blok.name == "stone":
                 bloktype=5
-            elif type(blok) == lava:
+            elif blok.name == "lava":
                 pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
-            elif type(blok) == dirt:
+            elif blok.name == "dirt":
                 bloktype=1
-            elif type(blok) == flower:
+            elif blok.name == "flower":
                 bloktype=6
-            elif type(blok) == emeraldore:
+            elif blok.name == "emeraldore":
                 bloktype=8
-            elif type(blok) == diamondore:
+            elif blok.name == "diamondore":
                 bloktype=7
-            elif type(blok) == rubyore:
+            elif blok.name == "rubyore":
                 bloktype=9
-            elif type(blok) == goldore:
+            elif blok.name == "goldore":
                 bloktype=10
-            elif type(blok) == coal:
+            elif blok.name == "coal":
                 bloktype=11
-            elif type(blok) == cabbage:
+            elif blok.name == "cabbage":
                 bloktype=13#todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            elif type(blok)==sheep:
+            elif blok.name=="sheep":
                 bloktype=14
-            elif type(blok)==sheepegg:
+            elif blok.name=="sheepegg":
                 bloktype=15
             if bloktype!= -1:
                 images[bloktype].blit(screen_x * cube_size, screen_y * cube_size)
