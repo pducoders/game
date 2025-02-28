@@ -15,27 +15,26 @@ game_start_time=time.time()
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 keys = key.KeyStateHandler()
 game_window.push_handlers(keys)
-dependencies=[
-    ("pyglet.image.load(","./assets/images/topsoil.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
-        ,("pyglet.image.load(","./assets/images/dirt.png","1l-LFTTHy2jrx51ZXVOi2ZLo6zrmFN96u")
-        ,("pyglet.image.load(","./assets/images/leaf.png","1P6IQW7-mMSsk1YmR4n-Yopl5uZw2IcnE")
-        ,("pyglet.image.load(","./assets/images/water.png","1IyEV0FXw_qHcNpiGsECuiEfXLQ-zWmBU")
-        ,("pyglet.image.load(","./assets/images/trunk.png","1eP3XVuvL68GSB1ZtzeNe35UDlvRLl00z")
-        ,("pyglet.image.load(","./assets/images/stone.png","1_PdchorIC0sAG7EjTPM5X10Kwhu6YApy")
-        ,("pyglet.image.load(","./assets/images/flower.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
-        ,("pyglet.image.load(","./assets/images/diamondore.png","1_xDSW7clXE59bftjW_kaslX7y3ytb8LP")
-        ,("pyglet.image.load(","./assets/images/rubyore.png","1V_mgKUg5kAct90oODaw4ZpQQ_O10LAmg")
-        ,("pyglet.image.load(","./assets/images/emeraldore.png","1VT_cmTjwgSGobsL8sL17Mev4ythDnAJ4")
-        ,("pyglet.image.load(","./assets/images/goldore.png","1JNOnxYXEf2rNEkPI3_1SrbroOck8Mh0d")
-        ,("pyglet.image.load(","./assets/images/coal.png","1WVTEwMeaMdcKBlg0mKH601UQHahNJFhW")
-        ,("pyglet.image.load(","./assets/images/cabbageplanted.png","1qPeKoihXoAHo7iSysp6Umx2w8JujHElk")
-        ,("pyglet.image.load(","./assets/images/cabbagegrown.png","1JJjtsjKAXY8OyrQcMNvlTLHCoT941MPh")
-        ,("pyglet.image.load(","./assets/images/cabbagegrown.png","1JJjtsjKAXY8OyrQcMNvlTLHCoT941MPh")
-        ,("pyglet.image.load(","./assets/images/sheepegg.png","1-Z1cnrr8IvKxncA_0O5H7fYUxiD1yaz2")
-]
-for file in dependencies:
+dependencies={
+    "topsoil":("pyglet.image.load(","./assets/images/topsoil.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
+        ,"dirt":("pyglet.image.load(","./assets/images/dirt.png","1l-LFTTHy2jrx51ZXVOi2ZLo6zrmFN96u")
+        ,"leaf":("pyglet.image.load(","./assets/images/leaf.png","1P6IQW7-mMSsk1YmR4n-Yopl5uZw2IcnE")
+        ,"water":("pyglet.image.load(","./assets/images/water.png","1IyEV0FXw_qHcNpiGsECuiEfXLQ-zWmBU")
+        ,"trunk":("pyglet.image.load(","./assets/images/trunk.png","1eP3XVuvL68GSB1ZtzeNe35UDlvRLl00z")
+        ,"stone":("pyglet.image.load(","./assets/images/stone.png","1_PdchorIC0sAG7EjTPM5X10Kwhu6YApy")
+        ,"flower":("pyglet.image.load(","./assets/images/flower.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
+        ,"diamondore":("pyglet.image.load(","./assets/images/diamondore.png","1_xDSW7clXE59bftjW_kaslX7y3ytb8LP")
+        ,"rubyore":("pyglet.image.load(","./assets/images/rubyore.png","1V_mgKUg5kAct90oODaw4ZpQQ_O10LAmg")
+        ,"emeraldore":("pyglet.image.load(","./assets/images/emeraldore.png","1VT_cmTjwgSGobsL8sL17Mev4ythDnAJ4")
+        ,"goldore":("pyglet.image.load(","./assets/images/goldore.png","1JNOnxYXEf2rNEkPI3_1SrbroOck8Mh0d")
+        ,"coal":("pyglet.image.load(","./assets/images/coal.png","1WVTEwMeaMdcKBlg0mKH601UQHahNJFhW")
+        ,"cabbageplanted":("pyglet.image.load(","./assets/images/cabbageplanted.png","1qPeKoihXoAHo7iSysp6Umx2w8JujHElk")
+        ,"cabbagegrown":("pyglet.image.load(","./assets/images/cabbagegrown.png","1JJjtsjKAXY8OyrQcMNvlTLHCoT941MPh")
+        ,"sheepegg":("pyglet.image.load(","./assets/images/sheepegg.png","1-Z1cnrr8IvKxncA_0O5H7fYUxiD1yaz2")
+}
+'''for file in dependencies:
     if not os.path.exists(file[1]):
-        urlretrieve("https://drive.google.com/uc?export=download&id="+file[2],file[1])
+        urlretrieve("https://drive.google.com/uc?export=download&id="+file[2],file[1])'''
 def btos(sheepx, sheepy):
     if not level1exists:
         screenx = (sheepx - 5 + 15) * cube_size
@@ -44,9 +43,9 @@ def btos(sheepx, sheepy):
         screenx=(sheepx-level1.player.x +15)*cube_size
         screeny=(sheepy-level1.player.y+5)*cube_size
     return screenx, screeny
-images = []
-for image in dependencies:
-    images.append(pyglet.image.load(image[1]))
+images = dict()
+for k,image in dependencies.items():
+    images[image[1].split("/")[3].split(".")[0]]=(pyglet.image.load(image[1]))
 # your player
 class Player:
     def __init__(self):
@@ -132,7 +131,7 @@ class sheep:
         self.y = y
         x,y=btos(x,y)
         self.sprite = pyglet.sprite.Sprite(
-            images[14],
+            pyglet.image.load(dependencies["cabbagegrown"][1]),
             x, y,
         )
     def fall(self):
@@ -212,8 +211,8 @@ def mine(mine_mouse_x, mine_mouse_y):
     if level1.mine_frame>=level1.player.mine_speed:
         mine_mouse_x,mine_mouse_y=level1.player.blok_being_mined
         try:
-            print(type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__)
-            inventory[type(blocksdict[mine_mouse_x, mine_mouse_y]).__name__] += 1
+            print(blocksdict[mine_mouse_x, mine_mouse_y].name)
+            inventory[blocksdict[mine_mouse_x, mine_mouse_y].name] += 1
             blocksdict.pop((mine_mouse_x, mine_mouse_y))
         except KeyError:
             pass
@@ -227,12 +226,12 @@ def place(place_mouse_x, place_mouse_y):
     try:
         blocksdict[place_mouse_x, place_mouse_y]
     except:
-        if inventory[str(blok_in_hand.__name__)] > 0:
+        if inventory[str(blok_in_hand)] > 0:
             if blok_in_hand=="sheepegg":
                 level1.creatures.append(sheep(place_mouse_x,place_mouse_y))
             else:
                 blocksdict[place_mouse_x, place_mouse_y] = block(place_mouse_x, place_mouse_y,blok_in_hand)
-            inventory[str(blok_in_hand.__name__)] -= 1
+            inventory[str(blok_in_hand)] -= 1
     else:
         if type(blocksdict[place_mouse_x, place_mouse_y]) == sheep:
             level1.go_to_shleep(place_mouse_x, place_mouse_y)
@@ -268,7 +267,12 @@ class level():
             if random(1,200)==1:
                 blocksdict[this_sheep.x+1,this_sheep.y]=block(this_sheep.x+1,this_sheep.y,"sheepegg")
             distance = random(-2, 2)
-            this_sheep.x += distance
+            for i in range(distance):
+                if (this_sheep.x+distance-i,this_sheep.y) not in blocksdict:
+                    this_sheep.x += distance
+                else:
+                    distance-=1
+                    continue
     def movecat(self, _):
         if self.cat.x < self.player.x - 3:
             self.cat.x += 1
@@ -403,7 +407,7 @@ def update():
             if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
                 #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
                 screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
-                images[14].blit(screen_x, screen_y)
+                pyglet.image.load(dependencies["cabbagegrown"][1]).blit(screen_x, screen_y)
 
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
@@ -412,55 +416,25 @@ def update():
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
-            bloktype = -1
-            if blok.name=="topsoil":
-                bloktype=0
-            elif blok.name == "leaf":
-                bloktype=2
-            elif blok.name == "water":
-                bloktype=3
-            elif blok.name == "trunk":
-                bloktype=4
-            elif blok.name == "stone":
-                bloktype=5
-            elif blok.name == "lava":
-                pyglet.shapes.Rectangle(screen_x * cube_size, screen_y * cube_size, cube_size, cube_size, blok.color).draw()
-            elif blok.name == "dirt":
-                bloktype=1
-            elif blok.name == "flower":
-                bloktype=6
-            elif blok.name == "emeraldore":
-                bloktype=8
-            elif blok.name == "diamondore":
-                bloktype=7
-            elif blok.name == "rubyore":
-                bloktype=9
-            elif blok.name == "goldore":
-                bloktype=10
-            elif blok.name == "coal":
-                bloktype=11
-            elif blok.name == "cabbage":
-                bloktype=13#todraw.append(pyglet.sprite.Sprite(images[cabbagegrowth], screen_x * cube_size, screen_y * cube_size, batch=batch))
-            elif blok.name=="sheep":
-                bloktype=14
-            elif blok.name=="sheepegg":
-                bloktype=15
-            if bloktype!= -1:
-                images[bloktype].blit(screen_x * cube_size, screen_y * cube_size)
+            try:
+                images[blok.name].blit(screen_x * cube_size, screen_y * cube_size)
+            except:pass
         fps.draw()
 
         #Draw the player
         pyglet.sprite.Sprite(pyglet.image.load("./assets/images/draftforcharecter.png"),15*cube_size,5*cube_size).draw()
+        night.draw()
     if inventoryshown:
+        game_window.clear()
         y=0
-        for (classname,x) in itertools.zip_longest(classlist,range(int(game_window.width/cube_size))):
-            if classname is not None:
-                pyglet.image.load("./assets/images/"+str(classname.__name__)+".png").blit(x * cube_size, y * cube_size)
-                pyglet.text.Label(str(inventory[classname.__name__]),x=x*cube_size,y=y*cube_size).draw()
+        for blockname,image,x in itertools.zip_longest(images.keys(),images.values(),range(int(game_window.width/cube_size))):
+            if image is not None:
+                if inventory[blockname]>0:
+                    image.blit(x*cube_size,y)
+                    pyglet.text.Label(str(inventory[blockname]),x=x*cube_size,y=y*cube_size).draw()
             if x>30:y+=1
-            if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= classname
+            if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= blockname
         pyglet.shapes.Rectangle(blok_in_hand_x*cube_size,blok_in_hand_y*cube_size,cube_size,cube_size,(0,100,255,200)).draw()
-    night.draw()
     if ashleep:
         if shleep_length<240/12 and shleep_morning==False:
             shleep_length=int(time.time())-int(game_start_time)
@@ -516,13 +490,11 @@ def on_key_press(space, _):
         mine(level1.player.x+1,level1.player.y)
 def leftrightmarker(_):
     if keys[key.LEFT]:
-        #sleep(speed / 6)
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x -= 1
         level1.anti_collide(_)
     if keys[key.RIGHT]:
-        #sleep(speed / 6)
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
