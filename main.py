@@ -5,7 +5,7 @@ import itertools
 from random import randint as random
 from collections import Counter
 from urllib.request import urlretrieve
-import os.path
+import os
 import pickle
 level1exists=False
 cube_size = 32
@@ -15,26 +15,11 @@ game_start_time=time.time()
 game_window = pyglet.window.Window(resizable=True, width=1200, height=300)
 keys = key.KeyStateHandler()
 game_window.push_handlers(keys)
-dependencies={
-    "topsoil":("pyglet.image.load(","./assets/images/topsoil.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
-        ,"dirt":("pyglet.image.load(","./assets/images/dirt.png","1l-LFTTHy2jrx51ZXVOi2ZLo6zrmFN96u")
-        ,"leaf":("pyglet.image.load(","./assets/images/leaf.png","1P6IQW7-mMSsk1YmR4n-Yopl5uZw2IcnE")
-        ,"water":("pyglet.image.load(","./assets/images/water.png","1IyEV0FXw_qHcNpiGsECuiEfXLQ-zWmBU")
-        ,"trunk":("pyglet.image.load(","./assets/images/trunk.png","1eP3XVuvL68GSB1ZtzeNe35UDlvRLl00z")
-        ,"stone":("pyglet.image.load(","./assets/images/stone.png","1_PdchorIC0sAG7EjTPM5X10Kwhu6YApy")
-        ,"flower":("pyglet.image.load(","./assets/images/flower.png","1_snTnZDZOAphu23GtlGHc8crIWGvWZwn")
-        ,"diamondore":("pyglet.image.load(","./assets/images/diamondore.png","1_xDSW7clXE59bftjW_kaslX7y3ytb8LP")
-        ,"rubyore":("pyglet.image.load(","./assets/images/rubyore.png","1V_mgKUg5kAct90oODaw4ZpQQ_O10LAmg")
-        ,"emeraldore":("pyglet.image.load(","./assets/images/emeraldore.png","1VT_cmTjwgSGobsL8sL17Mev4ythDnAJ4")
-        ,"goldore":("pyglet.image.load(","./assets/images/goldore.png","1JNOnxYXEf2rNEkPI3_1SrbroOck8Mh0d")
-        ,"coal":("pyglet.image.load(","./assets/images/coal.png","1WVTEwMeaMdcKBlg0mKH601UQHahNJFhW")
-        ,"cabbageplanted":("pyglet.image.load(","./assets/images/cabbageplanted.png","1qPeKoihXoAHo7iSysp6Umx2w8JujHElk")
-        ,"cabbagegrown":("pyglet.image.load(","./assets/images/cabbagegrown.png","1JJjtsjKAXY8OyrQcMNvlTLHCoT941MPh")
-        ,"sheepegg":("pyglet.image.load(","./assets/images/sheepegg.png","1-Z1cnrr8IvKxncA_0O5H7fYUxiD1yaz2")
-}
-'''for file in dependencies:
-    if not os.path.exists(file[1]):
-        urlretrieve("https://drive.google.com/uc?export=download&id="+file[2],file[1])'''
+dependencies=dict()
+for image in os.listdir("./assets/images"):
+    dependencies[image.split(".")[0]]="./assets/images/"+image
+for k, v in dependencies.items():
+    print(k,v)
 def btos(sheepx, sheepy):
     if not level1exists:
         screenx = (sheepx - 5 + 15) * cube_size
@@ -45,7 +30,7 @@ def btos(sheepx, sheepy):
     return screenx, screeny
 images = dict()
 for k,image in dependencies.items():
-    images[image[1].split("/")[3].split(".")[0]]=(pyglet.image.load(image[1]))
+    images[k]=(pyglet.image.load(image))
 # your player
 class Player:
     def __init__(self):
@@ -131,7 +116,7 @@ class sheep:
         self.y = y
         x,y=btos(x,y)
         self.sprite = pyglet.sprite.Sprite(
-            pyglet.image.load(dependencies["cabbagegrown"][1]),
+            pyglet.image.load(dependencies["cabbagegrown"]),
             x, y,
         )
     def fall(self):
@@ -247,8 +232,9 @@ class level():
     def anti_collide(self, _):
         for creature in level1.creatures:
             if (creature.x, creature.y) in blocksdict:
-                if type(creature)==Player or type(creature)==cat:
-                    creature.anti_collide()
+                if blocksdict[(creature.x,creature.y)].name !="trunk":
+                    if type(creature) != sheep:
+                        creature.anti_collide()
 
     # moving stuff
     def one_second(self, _):
@@ -324,6 +310,7 @@ level1exists=True
 # size of everything do not chnage
 batch=pyglet.graphics.Batch()
 inventoryshown=False
+turbo_mode=False
 fps=pyglet.window.FPSDisplay(window=game_window)
 speed=1
 game_speed=3
@@ -362,6 +349,9 @@ for x,y in itertools.product(range(game_window.width // cube_size), range(game_w
 mine_animation=pyglet.shapes.Rectangle(0,0,32,32,(255,255,255,0))
 def update():
     global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies
+    if turbo_mode:
+        leftrightmarker("")
+        level1.anti_collide("")
     fps.label.opacity=255
     if level1.mine_frame>0:
         x,y=level1.player.blok_being_mined
@@ -407,7 +397,7 @@ def update():
             if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
                 #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
                 screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
-                pyglet.image.load(dependencies["cabbagegrown"][1]).blit(screen_x, screen_y)
+                pyglet.image.load(dependencies["cabbagegrown"]).blit(screen_x, screen_y)
 
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
@@ -427,12 +417,13 @@ def update():
     if inventoryshown:
         game_window.clear()
         y=0
-        for blockname,image,x in itertools.zip_longest(images.keys(),images.values(),range(int(game_window.width/cube_size))):
+        for blockname,image,x in zip(images.keys(),images.values(),range(int(game_window.width/cube_size))):
             if image is not None:
                 if inventory[blockname]>0:
                     image.blit(x*cube_size,y)
                     pyglet.text.Label(str(inventory[blockname]),x=x*cube_size,y=y*cube_size).draw()
-            if x>30:y+=1
+            if x>30:
+                y+=1
             if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= blockname
         pyglet.shapes.Rectangle(blok_in_hand_x*cube_size,blok_in_hand_y*cube_size,cube_size,cube_size,(0,100,255,200)).draw()
     if ashleep:
@@ -445,7 +436,7 @@ def update():
             shleep_length=int(time.time())-int(game_start_time)
     game_length=int(time.time())-int(game_start_time)
 def on_key_press(space, _):
-    global inventoryshown,blok_in_hand_y,blok_in_hand_x,coins,costs,inventory
+    global inventoryshown,blok_in_hand_y,blok_in_hand_x,coins,costs,inventory,turbo_mode
     key = pyglet.window.key.symbol_string(space)
     level1.player.prev_x = level1.player.x
     level1.player.prev_y = level1.player.y
@@ -454,7 +445,11 @@ def on_key_press(space, _):
         if key=="LEFT": blok_in_hand_x -= 1
         if key=="TAB":export_world()
         if key=="BACKSPACE":import_world()
-
+        if key=="T":
+            if turbo_mode:
+                turbo_mode=False
+            else:
+                turbo_mode=True
     if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
@@ -510,9 +505,10 @@ def on_mouse_press(x,y,button,modifiers):
 # run it nothing below here expect for run
 game_window.on_draw = update
 game_window.on_key_press = on_key_press
-pyglet.clock.schedule_interval(leftrightmarker, 0.1)
+if not turbo_mode:
+    pyglet.clock.schedule_interval(leftrightmarker, 0.1)
+    pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
-pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.movecat, 0.5)
 pyglet.clock.schedule_interval(level1.movesheep, 0.5)
 pyglet.app.run()
