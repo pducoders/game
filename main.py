@@ -416,15 +416,23 @@ def update():
         night.draw()
     if inventoryshown:
         game_window.clear()
-        y=0
-        for blockname,image,x in zip(images.keys(),images.values(),range(int(game_window.width/cube_size))):
-            if image is not None:
-                if inventory[blockname]>0:
-                    image.blit(x*cube_size,y)
+        inventorys=[]
+        for k,v in zip(images.keys(),images.values()):
+            inventorys.append((k,v))
+        i=0
+        for y in range(2):
+            for x in range(int(game_window.width/cube_size)):
+                try:
+                    blockname,image=inventorys[i]
+                except:pass
+                if image is not None:
+                    #if inventory[blockname]>0:
+                    if x>game_window.width/cube_size:
+                        x=0
+                    image.blit(x*cube_size,y*cube_size)
                     pyglet.text.Label(str(inventory[blockname]),x=x*cube_size,y=y*cube_size).draw()
-            if x>30:
-                y+=1
-            if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= blockname
+                if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= blockname
+                i+=1
         pyglet.shapes.Rectangle(blok_in_hand_x*cube_size,blok_in_hand_y*cube_size,cube_size,cube_size,(0,100,255,200)).draw()
     if ashleep:
         if shleep_length<240/12 and shleep_morning==False:
