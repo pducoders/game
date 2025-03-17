@@ -42,6 +42,7 @@ class Player:
         self.blok_being_mined=(0,0)
         self.prev_x = 5
         self.prev_y = 2
+        self.sprite=pyglet.sprite.Sprite(images["playerright"], 15*cube_size, 5*cube_size)
 
     # jump
     def jump(self):
@@ -167,7 +168,7 @@ def makeblocks():
         if y > -10:
             blocksdict[(x,y)] = block(x,y,"dirt")
         if -20 >= y >= -30:
-            blocksdict[(x, y)] = block(x, y,"lava")
+            blocksdict[(x, y)] = block(x, y,"laava")
         if -10>= y >=-20:
             if random(1, 100) == 1:
                 blocksdict[(x, y)] =block(x, y, ores[random(0, len(ores) - 1)])
@@ -389,30 +390,28 @@ def update():
             speed -= 1
 
     if not inventoryshown:
-        drawsheeps=[]
         for drawsheep in level1.creatures:
             if type(drawsheep)==sheep:
-                drawsheeps.append(drawsheep)
-        for drawsheep in drawsheeps:
-            if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
-                #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
-                screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
-                pyglet.image.load(dependencies["cabbagegrown"]).blit(screen_x, screen_y)
+                if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
+                    #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
+                    screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
+                    images["cabbagegrown"].blit(screen_x, screen_y)
 
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
-                pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                images["kitty2"].blit(screen_x*cube_size, screen_y*cube_size)
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
             try:
                 images[blok.name].blit(screen_x * cube_size, screen_y * cube_size)
             except:pass
+
         fps.draw()
 
         #Draw the player
-        pyglet.sprite.Sprite(pyglet.image.load("./assets/images/draftforcharecter.png"),15*cube_size,5*cube_size).draw()
+        level1.player.sprite.draw()
         night.draw()
     if inventoryshown:
         game_window.clear()
@@ -429,7 +428,12 @@ def update():
                     #if inventory[blockname]>0:
                     if x>game_window.width/cube_size:
                         x=0
-                    image.blit(x*cube_size,y*cube_size)
+                    if image.width != cube_size or image.height != cube_size:
+                        spritevar = pyglet.sprite.Sprite(image, x*cube_size, y*cube_size)
+                        spritevar.scale=.5
+                        spritevar.draw()
+                    else:
+                        image.blit(x*cube_size,y*cube_size)
                     pyglet.text.Label(str(inventory[blockname]),x=x*cube_size,y=y*cube_size).draw()
                 if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= blockname
                 i+=1
@@ -497,11 +501,13 @@ def leftrightmarker(_):
         level1.player.prev_y = level1.player.y
         level1.player.x -= 1
         level1.anti_collide(_)
+        level1.player.sprite.image = images["playerleft"]
     if keys[key.RIGHT]:
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
         level1.anti_collide(_)
+        level1.player.sprite.image = images["playerright"]
 @game_window.event
 def on_mouse_press(x,y,button,modifiers):
     adjusted_mouse_x = int(x / 32) - 15 + level1.player.x
@@ -517,6 +523,6 @@ if not turbo_mode:
     pyglet.clock.schedule_interval(leftrightmarker, 0.1)
     pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
-pyglet.clock.schedule_interval(level1.movecat, 0.5)
+pyglet.clock.schedule_interval(level1.movecat, 0.2)
 pyglet.clock.schedule_interval(level1.movesheep, 0.5)
 pyglet.app.run()
