@@ -42,6 +42,7 @@ class Player:
         self.blok_being_mined=(0,0)
         self.prev_x = 5
         self.prev_y = 2
+        self.sprite=pyglet.sprite.Sprite(images["playerright"], 15*cube_size, 5*cube_size)
 
     # jump
     def jump(self):
@@ -167,7 +168,7 @@ def makeblocks():
         if y > -10:
             blocksdict[(x,y)] = block(x,y,"dirt")
         if -20 >= y >= -30:
-            blocksdict[(x, y)] = block(x, y,"lava")
+            blocksdict[(x, y)] = block(x, y,"laava")
         if -10>= y >=-20:
             if random(1, 100) == 1:
                 blocksdict[(x, y)] =block(x, y, ores[random(0, len(ores) - 1)])
@@ -253,12 +254,7 @@ class level():
             if random(1,200)==1:
                 blocksdict[this_sheep.x+1,this_sheep.y]=block(this_sheep.x+1,this_sheep.y,"sheepegg")
             distance = random(-2, 2)
-            for i in range(distance):
-                if (this_sheep.x+distance-i,this_sheep.y) not in blocksdict:
-                    this_sheep.x += distance
-                else:
-                    distance-=1
-                    continue
+            this_sheep.x+=distance
     def movecat(self, _):
         if self.cat.x < self.player.x - 3:
             self.cat.x += 1
@@ -389,30 +385,28 @@ def update():
             speed -= 1
 
     if not inventoryshown:
-        drawsheeps=[]
         for drawsheep in level1.creatures:
             if type(drawsheep)==sheep:
-                drawsheeps.append(drawsheep)
-        for drawsheep in drawsheeps:
-            if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
-                #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
-                screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
-                pyglet.image.load(dependencies["cabbagegrown"]).blit(screen_x, screen_y)
+                if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
+                    #drawsheep.sprite.x, drawsheep.sprite.y = btos(drawsheep.x, drawsheep.y)
+                    screen_x, screen_y = btos(drawsheep.x, drawsheep.y)
+                    images["cabbagegrown"].blit(screen_x, screen_y)
 
         for screen_x,screen_y in (itertools.product(range(game_window.width // cube_size), range(game_window.height // cube_size))):
             blok_cord = (level1.player.x-15+screen_x,level1.player.y-5+screen_y)
             if (level1.cat.x,level1.cat.y) == blok_cord:
-                pyglet.image.load("./assets/images/kitty.2.png").blit(screen_x * cube_size - camera, screen_y * cube_size)
+                images["kitty2"].blit(screen_x*cube_size, screen_y*cube_size)
             if blok_cord in blocksdict:
                 blok=blocksdict[blok_cord]
             else:continue
             try:
                 images[blok.name].blit(screen_x * cube_size, screen_y * cube_size)
             except:pass
+
         fps.draw()
 
         #Draw the player
-        pyglet.sprite.Sprite(pyglet.image.load("./assets/images/draftforcharecter.png"),15*cube_size,5*cube_size).draw()
+        level1.player.sprite.draw()
         night.draw()
     if inventoryshown:
         game_window.clear()
@@ -429,7 +423,12 @@ def update():
                     #if inventory[blockname]>0:
                     if x>game_window.width/cube_size:
                         x=0
-                    image.blit(x*cube_size,y*cube_size)
+                    if image.width != cube_size or image.height != cube_size:
+                        spritevar = pyglet.sprite.Sprite(image, x*cube_size, y*cube_size)
+                        spritevar.scale=.5
+                        spritevar.draw()
+                    else:
+                        image.blit(x*cube_size,y*cube_size)
                     pyglet.text.Label(str(inventory[blockname]),x=x*cube_size,y=y*cube_size).draw()
                 if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= blockname
                 i+=1
@@ -458,28 +457,9 @@ def on_key_press(space, _):
                 turbo_mode=False
             else:
                 turbo_mode=True
-    if key == "UP":
+    if key == "UP" or key=="W":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
-    if key == "DOWN":
-        if level1.creatureOnFloor(level1.player) == False:
-            level1.player.fall()
-    if key == "P":
-        level1.place("right")
-    if key == "U":
-        level1.place("left")
-    if key == "I":
-        level1.place("down")
-    if key == "O":
-        level1.place("up")
-    if key == "W":
-        level1.mine("up")
-    if key == "D":
-        level1.mine("right")
-    if key == "A":
-        level1.mine("left")
-    if key == "S":
-        level1.mine("down")
     if key == "V":
         print(level1.player.x)
         print(level1.player.y)
@@ -492,16 +472,18 @@ def on_key_press(space, _):
         mine(level1.player.x + 1, level1.player.y+1)
         mine(level1.player.x+1,level1.player.y)
 def leftrightmarker(_):
-    if keys[key.LEFT]:
+    if keys[key.LEFT]or keys[key.A]:
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x -= 1
         level1.anti_collide(_)
-    if keys[key.RIGHT]:
+        level1.player.sprite.image = images["playerleft"]
+    if keys[key.RIGHT]or keys[key.D]:
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
         level1.anti_collide(_)
+        level1.player.sprite.image = images["playerright"]
 @game_window.event
 def on_mouse_press(x,y,button,modifiers):
     adjusted_mouse_x = int(x / 32) - 15 + level1.player.x
@@ -517,6 +499,6 @@ if not turbo_mode:
     pyglet.clock.schedule_interval(leftrightmarker, 0.1)
     pyglet.clock.schedule_interval(level1.anti_collide, 0.05)
 pyglet.clock.schedule_interval(level1.one_second, 0.5)
-pyglet.clock.schedule_interval(level1.movecat, 0.5)
+pyglet.clock.schedule_interval(level1.movecat, 0.2)
 pyglet.clock.schedule_interval(level1.movesheep, 0.5)
 pyglet.app.run()
