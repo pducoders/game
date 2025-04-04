@@ -254,7 +254,12 @@ class level():
             if random(1,200)==1:
                 blocksdict[this_sheep.x+1,this_sheep.y]=block(this_sheep.x+1,this_sheep.y,"sheepegg")
             distance = random(-2, 2)
-            this_sheep.x+=distance
+            for i in range(distance):
+                if (this_sheep.x+distance-i,this_sheep.y) not in blocksdict:
+                    this_sheep.x += distance
+                else:
+                    distance-=1
+                    continue
     def movecat(self, _):
         if self.cat.x < self.player.x - 3:
             self.cat.x += 1
@@ -457,9 +462,28 @@ def on_key_press(space, _):
                 turbo_mode=False
             else:
                 turbo_mode=True
-    if key == "UP" or key=="W":
+    if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
+    if key == "DOWN":
+        if level1.creatureOnFloor(level1.player) == False:
+            level1.player.fall()
+    if key == "P":
+        level1.place("right")
+    if key == "U":
+        level1.place("left")
+    if key == "I":
+        level1.place("down")
+    if key == "O":
+        level1.place("up")
+    if key == "W":
+        level1.mine("up")
+    if key == "D":
+        level1.mine("right")
+    if key == "A":
+        level1.mine("left")
+    if key == "S":
+        level1.mine("down")
     if key == "V":
         print(level1.player.x)
         print(level1.player.y)
@@ -472,13 +496,13 @@ def on_key_press(space, _):
         mine(level1.player.x + 1, level1.player.y+1)
         mine(level1.player.x+1,level1.player.y)
 def leftrightmarker(_):
-    if keys[key.LEFT]or keys[key.A]:
+    if keys[key.LEFT]:
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x -= 1
         level1.anti_collide(_)
         level1.player.sprite.image = images["playerleft"]
-    if keys[key.RIGHT]or keys[key.D]:
+    if keys[key.RIGHT]:
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
