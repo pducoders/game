@@ -501,13 +501,13 @@ def leftrightmarker(_):
         level1.player.prev_y = level1.player.y
         level1.player.x -= 1
         level1.anti_collide(_)
-        level1.player.sprite.image = images["playerleft"]
+        #level1.player.sprite.image = images["playerleft"]
     if keys[key.RIGHT]:
         level1.player.prev_x = level1.player.x
         level1.player.prev_y = level1.player.y
         level1.player.x += 1
         level1.anti_collide(_)
-        level1.player.sprite.image = images["playerright"]
+        #level1.player.sprite.image = images["playerright"]
 @game_window.event
 def on_mouse_press(x,y,button,modifiers):
     adjusted_mouse_x = int(x / 32) - 15 + level1.player.x
