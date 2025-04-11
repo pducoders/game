@@ -9,6 +9,8 @@ import os
 import pickle
 level1exists=False
 cube_size = 32
+crafting=False
+buying=False
 # nothing other than import above here
 game_start_time=time.time()
 # summons window
@@ -349,7 +351,7 @@ for x,y in itertools.product(range(game_window.width // cube_size), range(game_w
     drawdict[x,y]="y"
 mine_animation=pyglet.shapes.Rectangle(0,0,32,32,(255,255,255,0))
 def update():
-    global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies
+    global speed, blok_in_hand_x, blok_in_hand_y, blok_in_hand,sun_x,sun_y,game_length,cabbagegrowth,shleep_length,shleep_morning,dependencies,buying
     if turbo_mode:
         leftrightmarker("")
         level1.anti_collide("")
@@ -389,7 +391,7 @@ def update():
         if float(fps.label.text)>game_speed and speed>0.1:
             speed -= 1
 
-    if not inventoryshown:
+    if not inventoryshown and not crafting:
         for drawsheep in level1.creatures:
             if type(drawsheep)==sheep:
                 if  level1.player.x-15<=drawsheep.x<=level1.player.x+ game_window.width/cube_size-15:
@@ -413,6 +415,7 @@ def update():
         #Draw the player
         level1.player.sprite.draw()
         night.draw()
+
     if inventoryshown:
         game_window.clear()
         inventorys=[]
@@ -425,16 +428,39 @@ def update():
                     blockname,image=inventorys[i]
                 except:pass
                 if image is not None:
-                    #if inventory[blockname]>0:
-                    if x>game_window.width/cube_size:
-                        x=0
-                    if image.width != cube_size or image.height != cube_size:
-                        spritevar = pyglet.sprite.Sprite(image, x*cube_size, y*cube_size)
-                        spritevar.scale=.5
-                        spritevar.draw()
-                    else:
-                        image.blit(x*cube_size,y*cube_size)
-                    pyglet.text.Label(str(inventory[blockname]),x=x*cube_size,y=y*cube_size).draw()
+                    if inventory[blockname]>0:
+                        if x>game_window.width/cube_size:
+                            x=0
+                        if image.width != cube_size or image.height != cube_size:
+                            spritevar = pyglet.sprite.Sprite(image, x*cube_size, y*cube_size)
+                            spritevar.scale=.5
+                            spritevar.draw()
+                        else:
+                            image.blit(x*cube_size,y*cube_size)
+                        pyglet.text.Label(str(inventory[blockname]),x=x*cube_size,y=y*cube_size).draw()
+                    if crafting:
+                        recipies={("water","trunk","stone"):"bluecarpet"}
+                        for cost,gain in recipies.items():
+                            if blok_in_hand==gain:
+                                if buying:
+                                    inventory[gain]+=1
+                                    for blok in cost:
+                                        inventory[blok]-=1
+                                craftx = 0
+                                for blok in cost:
+                                    images[blok].blit(craftx,game_window.height-32)
+                                    craftx+=32
+                                buying=False
+                        if x > game_window.width / cube_size:
+                            x = 0
+                        if image.width != cube_size or image.height != cube_size:
+                            spritevar = pyglet.sprite.Sprite(image, x * cube_size, y * cube_size)
+                            spritevar.scale = .5
+                            spritevar.draw()
+                        else:
+                            image.blit(x * cube_size, y * cube_size)
+
+                        pyglet.text.Label(str(inventory[blockname]), x=x * cube_size, y=y * cube_size).draw()
                 if blok_in_hand_x ==x and blok_in_hand_y==y:blok_in_hand= blockname
                 i+=1
         pyglet.shapes.Rectangle(blok_in_hand_x*cube_size,blok_in_hand_y*cube_size,cube_size,cube_size,(0,100,255,200)).draw()
@@ -448,7 +474,7 @@ def update():
             shleep_length=int(time.time())-int(game_start_time)
     game_length=int(time.time())-int(game_start_time)
 def on_key_press(space, _):
-    global inventoryshown,blok_in_hand_y,blok_in_hand_x,coins,costs,inventory,turbo_mode
+    global inventoryshown,blok_in_hand_y,blok_in_hand_x,coins,costs,inventory,turbo_mode,buying,crafting
     key = pyglet.window.key.symbol_string(space)
     level1.player.prev_x = level1.player.x
     level1.player.prev_y = level1.player.y
@@ -462,6 +488,10 @@ def on_key_press(space, _):
                 turbo_mode=False
             else:
                 turbo_mode=True
+    if crafting:
+        if key=="B":
+            buying=True
+        else:buying=False
     if key == "UP":
         if level1.creatureOnFloor(level1.player):
             level1.player.jump()
@@ -490,8 +520,14 @@ def on_key_press(space, _):
     if key =="G":
         if inventoryshown:
             inventoryshown=False
+            crafting=False
         else:
             inventoryshown=True
+    if key=="C" and inventoryshown:
+        if crafting:
+            crafting=False
+        else:
+            crafting=True
     if key=="Z":
         mine(level1.player.x + 1, level1.player.y+1)
         mine(level1.player.x+1,level1.player.y)
