@@ -44,7 +44,7 @@ class Player:
         self.blok_being_mined=(0,0)
         self.prev_x = 5
         self.prev_y = 2
-        self.sprite=pyglet.sprite.Sprite(images["playerright"], 15*cube_size, 5*cube_size)
+        self.sprite=pyglet.sprite.Sprite(images["draftforcharecter"], 15*cube_size, 5*cube_size)
 
     # jump
     def jump(self):
